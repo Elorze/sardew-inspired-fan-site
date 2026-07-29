@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="种种大世界原创视频。" />
+    <title>媒体｜种种大世界</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles.css?v=20260728-site-base" />
+    <link rel="stylesheet" href="media.css?v=20260730-wisteria-frame" />
+  </head>
+  <body data-page="media.html">
+    <div data-site-header></div>
+
+    <main class="media-video-main">
+      <section class="media-video-frame" aria-label="种种视频">
+        <div class="media-video-player is-controls-visible" aria-label="种种视频播放器" tabindex="0">
+          <video
+            id="mediaVideo"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            poster="assets/gameplay-world.png"
+          >
+            <source src="assets/zhongzhong-scenes.mp4" type="video/mp4" />
+          </video>
+
+          <button class="media-paused-indicator" type="button" aria-label="播放视频">
+            <span aria-hidden="true">▶</span>
+          </button>
+
+          <div class="media-video-controls" aria-label="视频控制">
+            <button class="media-play-toggle" type="button" aria-label="暂停">
+              <span aria-hidden="true">Ⅱ</span>
+            </button>
+
+            <input
+              class="media-seek"
+              id="mediaSeek"
+              type="range"
+              min="0"
+              max="1000"
+              step="1"
+              value="0"
+              aria-label="视频进度"
+            />
+
+            <output class="media-time" for="mediaSeek">0:00 / 0:00</output>
+
+            <button class="media-mute-toggle" type="button" aria-label="打开声音">
+              <span aria-hidden="true">🔇</span>
+            </button>
+
+            <button class="media-fullscreen-toggle" type="button" aria-label="进入全屏">
+              <span aria-hidden="true">⛶</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div data-site-footer></div>
+    <script src="site-shell.js?v=20260729-header-avatar"></script>
+    <script src="media.js?v=20260729-video-player"></script>
+    <script src="script.js?v=20260728-scroll-stories"></script>
+  </body>
+</html>

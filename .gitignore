@@ -1,6 +1,7 @@
-.DS_Store
-Thumbs.db
-*.log
+.env
+certs/
+data/orders.json
+data/users.json
+data/account-state.json
+data/*.json
 node_modules/
-dist/
-build/

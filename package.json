@@ -1,0 +1,17 @@
+{
+  "name": "zhongzhong-world-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "NODE_ENV=production node server.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18.20.0"
+  },
+  "dependencies": {
+    "alipay-sdk": "^4.14.0"
+  }
+}

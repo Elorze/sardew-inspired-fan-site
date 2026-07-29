@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="向种种提交问题。" />
+    <title>提交问题｜种种大世界</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles.css?v=20260728-site-base" />
+    <link rel="stylesheet" href="faq.css?v=20260730-submit-identity" />
+  </head>
+  <body data-page="faq.html">
+    <div data-site-header></div>
+
+    <main class="faq-submit-main">
+      <a class="faq-back" href="faq.html" aria-label="返回问题列表">‹</a>
+      <section class="faq-letter">
+        <h1>提交问题</h1>
+        <form class="faq-submission-form" id="faqSubmissionForm">
+          <label>
+            <span>问题</span>
+            <input name="question" type="text" required maxlength="80" />
+          </label>
+          <label>
+            <span>补充内容</span>
+            <textarea name="details" rows="7" maxlength="800"></textarea>
+          </label>
+          <label>
+            <span>联系方式</span>
+            <input name="contact" type="text" maxlength="100" />
+          </label>
+          <fieldset class="submission-identity">
+            <legend>刊登方式</legend>
+            <label>
+              <input type="radio" name="visibility" value="anonymous" checked />
+              <span>匿名</span>
+            </label>
+            <label>
+              <input type="radio" name="visibility" value="real" />
+              <span>实名</span>
+            </label>
+          </fieldset>
+          <button type="submit">发送</button>
+          <p class="faq-form-status" id="faqFormStatus" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <div data-site-footer></div>
+    <script src="site-shell.js?v=20260729-header-avatar"></script>
+    <script src="faq-submit.js?v=20260730-content-api"></script>
+  </body>
+</html>

@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="种种大世界文创商店。" />
+    <title>文创商店｜种种大世界</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles.css?v=20260729-shop-room" />
+    <link rel="stylesheet" href="shop-minimal.css?v=20260730-shelf-clean" />
+  </head>
+  <body data-page="shop.html">
+    <div data-site-header></div>
+
+    <main class="shop-main">
+      <header class="shop-header">
+        <div class="shop-title">
+          <h1 class="visually-hidden">种种文创超市</h1>
+          <p class="shop-status" id="shopStatus" role="status" aria-live="polite"></p>
+        </div>
+      </header>
+
+      <section class="market-showroom" aria-label="文创商品货架">
+        <div class="market-room">
+          <button
+            class="market-door"
+            id="marketDoor"
+            type="button"
+            aria-label="打开植物冰柜"
+            aria-pressed="false"
+          >
+            <span class="market-door-leaf market-door-left" aria-hidden="true"></span>
+            <span class="market-door-leaf market-door-right" aria-hidden="true"></span>
+            <span class="market-fixture-label">植物冰柜</span>
+          </button>
+
+          <button
+            class="market-product market-product-world"
+            type="button"
+            data-view-product="merch-01"
+            aria-label="查看种种世界贴纸包"
+            title="查看种种世界贴纸包"
+          >
+            <img src="assets/merch-sticker-world-pixel.png" alt="种种世界贴纸包" />
+          </button>
+
+          <button
+            class="market-product market-product-companions"
+            type="button"
+            data-view-product="merch-02"
+            aria-label="查看小伙伴异形贴纸组"
+            title="查看小伙伴异形贴纸组"
+          >
+            <img src="assets/merch-sticker-companions.png" alt="小伙伴异形贴纸组" />
+          </button>
+
+          <button
+            class="market-product market-product-map"
+            type="button"
+            data-view-product="merch-03"
+            aria-label="查看蒲公英地图贴纸套装"
+            title="查看蒲公英地图贴纸套装"
+          >
+            <img src="assets/merch-sticker-map.png" alt="蒲公英地图贴纸套装" />
+          </button>
+
+          <button
+            class="market-product market-product-generated market-product-keychain"
+            type="button"
+            data-view-product="merch-04"
+            aria-label="查看种种精灵亚克力挂件"
+            title="查看种种精灵亚克力挂件"
+          >
+            <img src="assets/merch-keychain-pixel-v2.png" alt="种种精灵亚克力挂件" />
+          </button>
+
+          <button
+            class="market-product market-product-generated market-product-tape"
+            type="button"
+            data-view-product="merch-05"
+            aria-label="查看蓝花园和纸胶带"
+            title="查看蓝花园和纸胶带"
+          >
+            <img src="assets/merch-tape-pixel-v1.png" alt="蓝花园和纸胶带" />
+          </button>
+
+          <button
+            class="market-product market-product-generated market-product-badges"
+            type="button"
+            data-view-product="merch-06"
+            aria-label="查看盆栽伙伴徽章组"
+            title="查看盆栽伙伴徽章组"
+          >
+            <img src="assets/merch-badges-pixel-v1.png" alt="盆栽伙伴徽章组" />
+          </button>
+
+          <button
+            class="market-product market-product-generated market-product-patch"
+            type="button"
+            data-view-product="merch-07"
+            aria-label="查看春日花朵刺绣章"
+            title="查看春日花朵刺绣章"
+          >
+            <img src="assets/merch-patch-pixel-v2.png" alt="春日花朵刺绣章" />
+          </button>
+
+          <button
+            class="market-product market-product-generated market-product-memo"
+            type="button"
+            data-view-product="merch-08"
+            aria-label="查看花园一角便签本"
+            title="查看花园一角便签本"
+          >
+            <img src="assets/merch-memo-pixel-v2.png" alt="花园一角便签本" />
+          </button>
+
+          <button
+            class="market-product market-product-generated market-product-stickers"
+            type="button"
+            data-view-product="merch-09"
+            aria-label="查看花园伙伴异形贴"
+            title="查看花园伙伴异形贴"
+          >
+            <img src="assets/merch-stickers-pixel-v2.png" alt="花园伙伴异形贴" />
+          </button>
+
+          <button
+            class="market-product market-product-print market-product-world-print"
+            type="button"
+            data-view-product="merch-10"
+            aria-label="查看种种世界纪念画片"
+            title="查看种种世界纪念画片"
+          >
+            <img src="assets/product-world-thumb.png" alt="种种世界纪念画片" />
+          </button>
+
+          <button
+            class="market-product market-product-print market-product-tavern-print"
+            type="button"
+            data-view-product="merch-11"
+            aria-label="查看种种酒馆纪念画片"
+            title="查看种种酒馆纪念画片"
+          >
+            <img src="assets/product-tavern-thumb.png" alt="种种酒馆纪念画片" />
+          </button>
+
+          <button
+            class="market-product market-product-print market-product-dandelion-print"
+            type="button"
+            data-view-product="merch-12"
+            aria-label="查看蒲公英大世界纪念画片"
+            title="查看蒲公英大世界纪念画片"
+          >
+            <img src="assets/product-dandelion-thumb.png" alt="蒲公英大世界纪念画片" />
+          </button>
+
+          <button
+            class="market-product market-product-generated market-product-figure"
+            type="button"
+            data-view-product="merch-15"
+            aria-label="查看小精灵手办模型"
+            title="查看小精灵手办模型"
+          >
+            <img src="assets/merch-keychain-pixel-v2.png" alt="小精灵手办模型" />
+          </button>
+
+          <button
+            class="market-product market-product-print market-product-card-sleeve"
+            type="button"
+            data-view-product="merch-16"
+            aria-label="查看种种卡套"
+            title="查看种种卡套"
+          >
+            <img src="assets/product-world-thumb.png" alt="种种卡套" />
+          </button>
+
+          <button
+            class="market-product market-product-fixture market-product-plant"
+            type="button"
+            data-view-product="merch-13"
+            aria-label="查看窗边种种盆栽"
+            title="查看窗边种种盆栽"
+          >
+            <img src="assets/wiki-potted-sprout.png" alt="窗边种种盆栽" />
+            <span class="market-fixture-label">窗边盆栽</span>
+          </button>
+
+          <button
+            class="market-product market-product-fixture market-product-floor"
+            type="button"
+            data-view-product="merch-14"
+            aria-label="查看浅蓝拼花地砖样片"
+            title="查看浅蓝拼花地砖样片"
+          >
+            <span class="market-floor-sample" aria-hidden="true"></span>
+            <span class="market-fixture-label">地砖样片</span>
+          </button>
+
+          <button
+            class="market-register"
+            id="marketRegister"
+            type="button"
+            aria-label="在收银台扫描购物车商品"
+          >
+            <span class="market-register-screen">
+              <img id="marketRegisterItem" src="" alt="" />
+              <span aria-hidden="true"></span>
+            </span>
+            <span class="market-fixture-label" id="marketRegisterStatus">点击收银</span>
+          </button>
+        </div>
+        <button
+          class="cart-button"
+          id="cartButton"
+          type="button"
+          aria-label="打开购物车"
+          aria-controls="cartDrawer"
+          aria-expanded="false"
+          title="打开购物车"
+        >
+          <img src="assets/cart-pixel-scene-v2.png" alt="" aria-hidden="true" />
+          <output id="cartCount" aria-label="购物车商品数量">0</output>
+        </button>
+      </section>
+    </main>
+
+    <div class="product-detail-backdrop" id="productDetailBackdrop" hidden></div>
+    <section
+      class="product-detail-modal"
+      id="productDetailModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="productDetailTitle"
+      aria-hidden="true"
+      hidden
+      inert
+    >
+      <button class="product-detail-close" id="productDetailClose" type="button" aria-label="关闭商品详情">×</button>
+      <div class="product-model-stage" id="productModelStage" aria-label="可旋转商品预览">
+        <div
+          class="product-pixel-turntable"
+          id="productPixelTurntable"
+          role="img"
+          aria-label="拖动或左右滑动旋转商品"
+          tabindex="0"
+        >
+          <div class="product-model-front">
+            <img id="productDetailImage" src="" alt="" draggable="false" />
+          </div>
+          <div class="product-model-back" aria-hidden="true">
+            <img id="productDetailBackImage" src="" alt="" draggable="false" />
+          </div>
+        </div>
+      </div>
+      <div class="product-detail-copy">
+        <h2 id="productDetailTitle"></h2>
+        <p class="product-detail-description" id="productDetailDescription"></p>
+        <dl class="product-detail-facts">
+          <div>
+            <dt>规格</dt>
+            <dd id="productDetailSpec"></dd>
+          </div>
+          <div>
+            <dt>材质</dt>
+            <dd id="productDetailMaterial"></dd>
+          </div>
+        </dl>
+        <div class="product-detail-action">
+          <strong id="productDetailPrice">¥18</strong>
+          <div>
+            <button id="productDetailAdd" type="button" data-add-to-cart="">
+              放进购物车
+            </button>
+            <button id="productDetailCart" type="button">查看购物车</button>
+          </div>
+        </div>
+        <p class="product-detail-status" id="productDetailStatus" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <div class="cart-backdrop" id="cartBackdrop" hidden></div>
+    <aside class="cart-drawer" id="cartDrawer" aria-label="购物车" aria-hidden="true" inert>
+      <header class="cart-drawer-header">
+        <h2>购物车</h2>
+        <button class="cart-close" id="cartClose" type="button" aria-label="关闭购物车">×</button>
+      </header>
+      <div class="cart-items" id="cartItems"></div>
+      <footer class="cart-summary">
+        <div>
+          <span>合计</span>
+          <strong id="cartTotal">¥0</strong>
+        </div>
+        <div class="checkout-scan" id="checkoutScan" aria-live="polite" hidden>
+          <div class="checkout-scan-window">
+            <img id="checkoutScanImage" src="" alt="" />
+            <span aria-hidden="true"></span>
+          </div>
+          <p id="checkoutScanStatus"></p>
+        </div>
+        <section class="checkout-receipt" id="checkoutReceipt" aria-label="购物小票" hidden>
+          <p class="checkout-receipt-state">
+            <span aria-hidden="true"></span>
+            小票已打印
+          </p>
+          <header>
+            <strong>种种文创超市</strong>
+            <span id="checkoutReceiptCode"></span>
+          </header>
+          <div class="checkout-receipt-items" id="checkoutReceiptItems"></div>
+          <footer>
+            <span>合计</span>
+            <strong id="checkoutReceiptTotal"></strong>
+          </footer>
+        </section>
+        <form class="checkout-delivery" id="checkoutDelivery" hidden>
+          <label>
+            <span>收件人</span>
+            <input
+              name="recipientName"
+              type="text"
+              autocomplete="name"
+              minlength="2"
+              maxlength="32"
+              required
+            />
+          </label>
+          <label>
+            <span>手机号</span>
+            <input
+              name="phone"
+              type="tel"
+              autocomplete="tel"
+              minlength="7"
+              maxlength="24"
+              pattern="[0-9+() \-]{7,24}"
+              required
+            />
+          </label>
+          <label>
+            <span>收货地址</span>
+            <textarea
+              name="address"
+              autocomplete="street-address"
+              minlength="6"
+              maxlength="180"
+              rows="2"
+              required
+            ></textarea>
+          </label>
+        </form>
+        <p class="cart-payment-status" id="cartPaymentStatus" role="status" aria-live="polite"></p>
+        <button id="checkoutButton" type="button" aria-describedby="cartPaymentStatus" disabled>
+          扫描商品并结算
+        </button>
+      </footer>
+    </aside>
+
+    <div data-site-footer></div>
+    <script src="site-shell.js?v=20260729-header-avatar"></script>
+    <script src="shop.js?v=20260730-shelf-clean"></script>
+    <script src="script.js?v=20260728-scroll-stories"></script>
+  </body>
+</html>

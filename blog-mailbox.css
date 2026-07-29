@@ -1,0 +1,1270 @@
+:root {
+  --mail-ink: #31534a;
+  --mail-muted: #788d86;
+  --mail-mint: #c7e1d8;
+  --mail-mint-deep: #557d71;
+  --mail-blue: #aac7c1;
+  --mail-blush: #c98298;
+  --mail-blush-soft: #f0dce2;
+  --mail-cream: #fbfdf8;
+  --mail-shadow: rgba(61, 91, 82, 0.13);
+}
+
+.mailbox-page,
+.blog-post-page {
+  background: #dcece6;
+}
+
+.mailbox-main {
+  min-height: calc(100svh - 72px);
+  padding: 28px 24px 52px;
+}
+
+.mailbox-shell {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.mailbox-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(980px, 100%);
+  margin: 0 auto 18px;
+  padding: 0 4px;
+}
+
+.mailbox-toolbar h1 {
+  margin: 0;
+  color: var(--mail-ink);
+  font-family: "STKaiti", "KaiTi", "Songti SC", serif;
+  font-size: 1.42rem;
+  font-weight: 500;
+}
+
+.mailbox-toolbar h1::after {
+  content: none;
+}
+
+.mailbox-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.mailbox-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--mail-ink);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.mailbox-action:hover,
+.mailbox-action:focus-visible,
+.mailbox-action[aria-pressed="true"] {
+  color: #ac5871;
+  outline: 0;
+  transform: translateY(-2px);
+}
+
+.mailbox-action:focus-visible::after {
+  content: " ·";
+  color: var(--mail-blush);
+}
+
+.mailbox-action output {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(174, 82, 109, 0.28);
+  border-radius: 50%;
+  background: #f2d8e0;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.42);
+  color: #8b4b5f;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.mailbox-action.is-complete output {
+  display: none;
+}
+
+.mailbox-workspace {
+  display: grid;
+  gap: 18px;
+}
+
+.mail-inbox {
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.mail-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: center;
+}
+
+.mail-list-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 7px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 58px;
+  padding: 11px 14px;
+  border: 1px solid rgba(79, 126, 112, 0.16);
+  background: rgba(250, 253, 249, 0.94);
+  box-shadow: 0 4px 12px rgba(74, 106, 96, 0.08);
+  color: var(--mail-ink);
+  font: inherit;
+  text-align: left;
+  transform: none;
+  transition:
+    color 180ms ease,
+    filter 180ms ease,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mail-list-item:nth-child(2) {
+  background: rgba(248, 252, 250, 0.94);
+  transform: none;
+}
+
+.mail-list-item:nth-child(3) {
+  background: rgba(251, 252, 248, 0.94);
+  transform: none;
+}
+
+.mail-list-item:hover,
+.mail-list-item:focus-visible,
+.mail-list-item.is-active {
+  color: #9f4e67;
+  filter: saturate(1.08);
+  outline: 0;
+  transform: translateY(-2px);
+}
+
+.mail-list-item.is-active {
+  background: rgba(255, 246, 249, 0.96);
+  border-color: rgba(193, 108, 132, 0.4);
+  box-shadow: 0 11px 24px rgba(105, 82, 85, 0.14);
+}
+
+.mail-list-item.is-arriving {
+  animation: mail-drop 520ms cubic-bezier(0.2, 0.78, 0.28, 1) both;
+}
+
+.mail-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mail-blush);
+  box-shadow: 0 0 0 3px rgba(201, 130, 152, 0.14);
+}
+
+.mail-list-item:not(.is-unread) .mail-unread-dot {
+  background: var(--mail-blue);
+  box-shadow: none;
+  opacity: 0.28;
+}
+
+.mail-list-item.is-unread .mail-list-title {
+  color: #704a57;
+  font-weight: 600;
+}
+
+.mail-list-date {
+  color: var(--mail-muted);
+  font-size: 0.67rem;
+}
+
+.mail-list-title {
+  overflow: hidden;
+  color: currentColor;
+  font-family: "STKaiti", "KaiTi", "Songti SC", serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mail-list-stamp {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border: 1px solid rgba(181, 87, 112, 0.55);
+  border-radius: 50%;
+  color: #b45972;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 0.7rem;
+  transform: rotate(8deg);
+}
+
+.mail-stage {
+  position: relative;
+  display: grid;
+  place-items: start center;
+  min-width: 0;
+}
+
+.mail-reading-pane,
+.mail-compose-pane,
+.blog-letter-detail {
+  position: relative;
+  isolation: isolate;
+  width: min(880px, 100%);
+  min-height: 680px;
+  margin: 0;
+  padding: 78px 88px 70px;
+  border: 1px solid rgba(79, 126, 112, 0.34);
+  background-color: var(--mail-cream);
+  background-image: none;
+  box-shadow:
+    0 22px 48px rgba(55, 82, 74, 0.13),
+    0 3px 0 rgba(255, 255, 255, 0.7) inset;
+  color: var(--mail-ink);
+  clip-path: polygon(0.6% 0.4%, 99.3% 0, 100% 99.2%, 0.2% 100%);
+  transform-origin: 50% 0;
+}
+
+.mail-reading-pane {
+  width: min(940px, 100%);
+  min-height: 0;
+  padding: 58px 72px 48px;
+}
+
+.mail-reading-pane[data-paper="sprout"],
+.blog-letter-detail[data-paper="sprout"] {
+  background-color: #fbfdf8;
+}
+
+.mail-reading-pane[data-paper="dandelion"],
+.blog-letter-detail[data-paper="dandelion"] {
+  background-color: #fffdf6;
+}
+
+.mail-reading-pane[data-paper="tavern"],
+.blog-letter-detail[data-paper="tavern"] {
+  background-color: #fff8f6;
+}
+
+.mail-compose-pane[data-paper="compose"] {
+  background-color: #fbfdf9;
+}
+
+.mail-floral-frame {
+  position: absolute;
+  z-index: -1;
+  inset: 5px;
+  display: block;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  object-fit: fill;
+  filter: saturate(1.08) contrast(1.04);
+  opacity: 0.98;
+  pointer-events: none;
+  user-select: none;
+}
+
+.mail-reading-pane.is-opening,
+.mail-compose-pane.is-opening {
+  animation: mail-open 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mail-reading-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.mail-reading-header > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.mail-reading-header time {
+  display: block;
+  margin-top: 7px;
+  color: var(--mail-muted);
+  font-size: 0.68rem;
+}
+
+.mail-category {
+  color: #a6556d;
+  font-weight: 700;
+}
+
+.mail-reading-header h2 {
+  max-width: none;
+  margin: 0;
+  color: var(--mail-ink);
+  font-family: "STKaiti", "KaiTi", "Songti SC", serif;
+  font-size: 1.7rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.mail-stamp {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 2px solid rgba(181, 72, 104, 0.6);
+  border-radius: 50%;
+  color: rgba(168, 64, 94, 0.82);
+  font-family: "Courier New", "Microsoft YaHei", monospace;
+  font-size: 0.67rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  white-space: pre-line;
+  transform: rotate(9deg);
+  animation: mail-stamp-land 420ms 180ms cubic-bezier(0.2, 0.75, 0.3, 1) both;
+}
+
+.mail-attachment {
+  margin: 22px 0 0;
+}
+
+.mail-attachment img,
+.blog-letter-detail > figure > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  image-rendering: auto;
+  clip-path: polygon(0.4% 0.8%, 99.5% 0, 100% 99.1%, 0 100%);
+}
+
+.mail-attachment figcaption,
+.blog-letter-detail figcaption {
+  margin-top: 8px;
+  color: #72827d;
+  font-family: "Courier New", monospace;
+  font-size: 0.62rem;
+  text-align: right;
+}
+
+.mail-reading-greeting {
+  margin: 25px 0 9px;
+  color: var(--mail-ink);
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 0.84rem;
+}
+
+.mail-reading-body {
+  max-width: 61ch;
+}
+
+.mail-reading-body p {
+  margin: 0;
+  color: #35574f;
+  font-size: 0.86rem;
+  line-height: 1.85;
+}
+
+.mail-reading-footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 0;
+  margin-top: 20px;
+  padding: 0 8px;
+}
+
+.mail-signature,
+.blog-signature {
+  display: grid;
+  width: max-content;
+  margin: 0;
+  color: #6e6670;
+  transform: rotate(-4deg);
+}
+
+.mail-signature small,
+.blog-signature small {
+  color: #8d9792;
+  font-family: "Courier New", monospace;
+  font-size: 0.56rem;
+}
+
+.mail-signature strong,
+.blog-signature strong {
+  color: #966379;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 1.72rem;
+  font-weight: 500;
+}
+
+.mail-reading-footer a {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  color: var(--mail-mint-deep);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mail-reading-footer a:hover,
+.mail-reading-footer a:focus-visible {
+  color: #ad5772;
+  outline: 0;
+}
+
+.mail-reading-footer a::after {
+  content: "  ›";
+  color: var(--mail-blush);
+}
+
+.mail-reading-footer > img,
+.mail-compose-footer > img,
+.blog-letter-footer > img {
+  position: absolute;
+  right: -22px;
+  bottom: -35px;
+  width: 225px;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.mail-compose-pane {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(180px, 1fr) auto;
+}
+
+.mail-compose-pane[hidden],
+.mail-reading-pane[hidden] {
+  display: none;
+}
+
+.mail-compose-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+}
+
+.mail-compose-header h2 {
+  margin: 0;
+  color: var(--mail-ink);
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 1.62rem;
+  font-weight: 500;
+}
+
+.mail-compose-close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #70837d;
+  font: inherit;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.mail-compose-close:hover,
+.mail-compose-close:focus-visible {
+  color: var(--mail-blush);
+  outline: 0;
+}
+
+.mail-field {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  box-shadow: 0 -1px 0 rgba(84, 119, 107, 0.2) inset;
+}
+
+.mail-field > span {
+  color: #6b817a;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.mail-field input,
+.mail-field textarea {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--mail-ink);
+  font: inherit;
+}
+
+.mail-field input {
+  min-height: 50px;
+}
+
+.mail-field textarea {
+  min-height: 210px;
+  padding: 20px 0;
+  line-height: 1.8;
+  resize: vertical;
+}
+
+.mail-field input::placeholder,
+.mail-field textarea::placeholder {
+  color: #97a69f;
+}
+
+.mail-message-field {
+  grid-template-columns: 1fr;
+  align-content: start;
+  padding-top: 18px;
+  box-shadow: none;
+}
+
+.mail-message-field > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.mail-identity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #49675d;
+  font-size: 0.74rem;
+}
+
+.mail-identity legend {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: #789084;
+  font-size: 0.68rem;
+}
+
+.mail-identity label {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.mail-compose-footer {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  min-height: 125px;
+  padding-top: 20px;
+}
+
+.mail-send-status {
+  position: absolute;
+  left: 0;
+  bottom: 15px;
+  max-width: 32ch;
+  color: #806d75;
+  font-size: 0.7rem;
+}
+
+.mail-send-button {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  margin-right: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #c9798e;
+  box-shadow:
+    0 5px 0 #a75c70,
+    0 0 0 3px rgba(255, 241, 228, 0.58) inset;
+  color: #fff8ed;
+  font: inherit;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 0.74rem;
+  line-height: 1.25;
+  transform: rotate(-5deg);
+  transition:
+    background-color 160ms ease,
+    transform 180ms ease;
+}
+
+.mail-send-button:hover,
+.mail-send-button:focus-visible {
+  background: #d98aa0;
+  outline: 0;
+  transform: translateY(-3px) rotate(0);
+}
+
+.mail-compose-pane.is-sealing .mail-send-button {
+  animation: mail-seal 440ms cubic-bezier(0.2, 0.78, 0.3, 1) both;
+}
+
+.letter-detail-main {
+  width: min(940px, calc(100% - 32px));
+  min-height: calc(100svh - 72px);
+  margin: 0 auto;
+  padding: 34px 0 70px;
+}
+
+.letter-detail-back {
+  display: inline-block;
+  margin: 0 0 20px 18px;
+  color: var(--mail-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.letter-detail-back:hover,
+.letter-detail-back:focus-visible {
+  color: #aa5870;
+  outline: 0;
+}
+
+.blog-letter-detail {
+  min-height: 760px;
+  padding-top: 82px;
+}
+
+.blog-letter-detail > header {
+  position: relative;
+  padding-right: 88px;
+}
+
+.blog-letter-detail .entry-meta {
+  margin: 0 0 10px;
+  color: #a6556d;
+  font-size: 0.68rem;
+}
+
+.blog-letter-detail h1 {
+  max-width: none;
+  margin: 0;
+  color: var(--mail-ink);
+  font-family: "STKaiti", "KaiTi", "Songti SC", serif;
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.36;
+}
+
+.blog-letter-detail > header .mail-stamp {
+  position: absolute;
+  top: -8px;
+  right: 0;
+}
+
+.blog-letter-detail > figure {
+  margin: 30px 0 0;
+}
+
+.blog-letter-detail .content-detail-body {
+  display: grid;
+  gap: 13px;
+  max-width: 66ch;
+  margin-top: 28px;
+}
+
+.blog-letter-detail .content-detail-body p {
+  margin: 0;
+  color: #35574f;
+  font-size: 0.88rem;
+  line-height: 1.9;
+  text-align: left;
+}
+
+.blog-letter-footer {
+  position: relative;
+  min-height: 150px;
+  margin-top: 12px;
+  padding-top: 30px;
+}
+
+@keyframes mail-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) rotate(-2deg);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mail-open {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes mail-stamp-land {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) rotate(14deg) scale(1.12);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(9deg) scale(1);
+  }
+}
+
+@keyframes mail-seal {
+  0% {
+    transform: translateY(-20px) rotate(-8deg) scale(1.08);
+  }
+
+  65% {
+    transform: translateY(5px) rotate(-3deg) scale(0.95);
+  }
+
+  100% {
+    transform: translateY(0) rotate(-5deg) scale(1);
+  }
+}
+
+@media (max-width: 900px) {
+  .mailbox-main {
+    padding-inline: 18px;
+  }
+
+  .mail-list {
+    gap: 12px;
+  }
+
+  .mail-list-item {
+    grid-template-columns: 6px minmax(0, 1fr);
+    min-height: 72px;
+    padding-inline: 12px;
+  }
+
+  .mail-list-stamp {
+    display: none;
+  }
+
+  .mail-reading-pane,
+  .mail-compose-pane,
+  .blog-letter-detail {
+    padding: 70px 58px 58px;
+  }
+
+  .mail-reading-pane {
+    min-height: 0;
+    padding: 52px 56px 40px;
+  }
+}
+
+@media (max-width: 680px) {
+  .mailbox-main {
+    padding: 26px 13px 48px;
+  }
+
+  .mailbox-toolbar {
+    padding-inline: 8px;
+  }
+
+  .mailbox-toolbar h1 {
+    font-size: 1.2rem;
+  }
+
+  .mailbox-actions {
+    gap: 14px;
+  }
+
+  .mail-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .mail-list-item,
+  .mail-list-item:nth-child(2),
+  .mail-list-item:nth-child(3) {
+    min-height: 62px;
+    transform: none;
+  }
+
+  .mail-list-item:hover,
+  .mail-list-item:focus-visible,
+  .mail-list-item.is-active {
+    transform: translateY(-1px);
+  }
+
+  .mail-reading-pane,
+  .mail-compose-pane,
+  .blog-letter-detail {
+    min-height: 620px;
+    padding: 64px 34px 48px;
+  }
+
+  .mail-reading-pane {
+    min-height: 0;
+    padding: 46px 32px 32px;
+  }
+
+  .mail-floral-frame {
+    inset: 4px;
+    width: calc(100% - 8px);
+    height: calc(100% - 8px);
+  }
+
+  .mail-reading-header h2,
+  .blog-letter-detail h1 {
+    font-size: 1.48rem;
+  }
+
+  .mail-stamp {
+    width: 53px;
+    height: 53px;
+    font-size: 0.58rem;
+  }
+
+  .mail-attachment {
+    margin-top: 22px;
+  }
+
+  .mail-attachment img,
+  .blog-letter-detail > figure > img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .mail-reading-footer {
+    min-height: 0;
+  }
+
+  .mail-reading-footer a {
+    margin: 0;
+  }
+
+  .mail-reading-footer > img,
+  .mail-compose-footer > img,
+  .blog-letter-footer > img {
+    right: -28px;
+    bottom: -27px;
+    width: 185px;
+  }
+
+  .letter-detail-main {
+    width: min(100% - 22px, 940px);
+    padding-top: 24px;
+  }
+
+  .letter-detail-back {
+    margin-left: 9px;
+  }
+
+  .blog-letter-detail > header {
+    padding-right: 62px;
+  }
+}
+
+@media (max-width: 430px) {
+  .mailbox-toolbar {
+    align-items: flex-end;
+  }
+
+  .mailbox-action {
+    font-size: 0.73rem;
+  }
+
+  .mail-reading-pane,
+  .mail-compose-pane,
+  .blog-letter-detail {
+    padding: 58px 25px 42px;
+  }
+
+  .mail-reading-pane {
+    min-height: 0;
+    padding: 42px 25px 28px;
+  }
+
+  .mail-reading-header {
+    gap: 10px;
+  }
+
+  .mail-reading-header h2,
+  .blog-letter-detail h1 {
+    font-size: 1.34rem;
+  }
+
+  .mail-reading-meta {
+    gap: 5px 9px;
+  }
+
+  .mail-reading-body p,
+  .blog-letter-detail .content-detail-body p {
+    font-size: 0.82rem;
+  }
+
+  .mail-reading-footer > img,
+  .mail-compose-footer > img,
+  .blog-letter-footer > img {
+    width: 162px;
+  }
+
+  .mail-field {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mailbox-action,
+  .mail-list-item,
+  .mail-send-button {
+    transition: none;
+  }
+
+  .mail-list-item.is-arriving,
+  .mail-reading-pane.is-opening,
+  .mail-compose-pane.is-opening,
+  .mail-stamp,
+  .mail-compose-pane.is-sealing .mail-send-button {
+    animation: none;
+  }
+}
+
+/* 20260730 visual mailbox: images and avatars first, paper texture second. */
+.mailbox-page,
+.blog-post-page {
+  background:
+    linear-gradient(rgba(231, 243, 238, 0.9), rgba(231, 243, 238, 0.9)),
+    url("assets/shared-home-faq-background.png") center / cover fixed;
+}
+
+.mailbox-main {
+  padding: clamp(18px, 4svh, 34px) 22px clamp(34px, 7svh, 64px);
+}
+
+.mailbox-shell {
+  width: min(1160px, 100%);
+}
+
+.mailbox-toolbar {
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.mailbox-toolbar h1 {
+  font-family:
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.mailbox-actions {
+  gap: 14px;
+}
+
+.mailbox-action {
+  min-height: 32px;
+  color: rgba(49, 83, 74, 0.88);
+  font-size: 0.78rem;
+}
+
+.mailbox-action output {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  background: rgba(201, 130, 152, 0.2);
+  box-shadow: none;
+}
+
+.mailbox-workspace {
+  grid-template-columns: minmax(220px, 310px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.mail-inbox {
+  width: 100%;
+  margin: 0;
+}
+
+.mail-list {
+  grid-template-columns: 1fr;
+  gap: 9px;
+}
+
+.mail-list-item,
+.mail-list-item:nth-child(2),
+.mail-list-item:nth-child(3) {
+  grid-template-columns: 6px 42px minmax(0, 1fr) auto;
+  min-height: 62px;
+  padding: 9px 11px;
+  border: 1px solid rgba(87, 127, 115, 0.18);
+  background: rgba(251, 254, 250, 0.72);
+  box-shadow: none;
+}
+
+.mail-list-item.is-active {
+  border-color: rgba(166, 90, 137, 0.38);
+  background: rgba(255, 248, 250, 0.82);
+  box-shadow: none;
+}
+
+.mail-list-avatar {
+  display: block;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.mail-list-title {
+  font-family:
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.mail-list-date {
+  font-size: 0.64rem;
+}
+
+.mail-stage {
+  display: block;
+}
+
+.mail-reading-pane,
+.mail-compose-pane,
+.blog-letter-detail {
+  width: 100%;
+  min-height: 0;
+  padding: clamp(20px, 3.4vw, 34px);
+  border: 1px solid rgba(86, 126, 113, 0.2);
+  background: rgba(252, 254, 247, 0.86);
+  box-shadow: none;
+  clip-path: none;
+}
+
+.mail-reading-pane {
+  display: grid;
+  gap: 18px;
+}
+
+.mail-floral-frame,
+.mail-reading-footer > img,
+.mail-compose-footer > img,
+.blog-letter-footer > img {
+  display: none;
+}
+
+.mail-reading-header {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.mail-reading-avatar {
+  display: block;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.mail-reading-header h2 {
+  font-family:
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  font-size: clamp(1.22rem, 2.2vw, 1.62rem);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.mail-reading-header time {
+  margin-top: 6px;
+  font-size: 0.68rem;
+}
+
+.mail-reading-summary {
+  max-width: 58ch;
+  margin: 10px 0 0;
+  color: rgba(53, 87, 79, 0.82);
+  font-size: 0.84rem;
+  line-height: 1.75;
+}
+
+.mail-stamp {
+  width: 50px;
+  height: 50px;
+  border-color: rgba(181, 72, 104, 0.42);
+  background: rgba(255, 249, 246, 0.68);
+  font-size: 0.6rem;
+}
+
+.mail-attachment {
+  margin: 0;
+}
+
+.mail-attachment img,
+.blog-letter-detail > figure > img {
+  aspect-ratio: 16 / 9;
+  clip-path: none;
+}
+
+.mail-reading-footer {
+  justify-content: flex-start;
+  margin-top: 0;
+  padding: 0;
+}
+
+.mail-reading-footer a {
+  min-height: 34px;
+  color: #557d71;
+  font-size: 0.8rem;
+}
+
+.mail-compose-pane {
+  grid-template-rows: auto auto auto minmax(160px, 1fr) auto;
+}
+
+.mail-compose-header h2 {
+  font-family:
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  font-size: 1.12rem;
+  font-weight: 600;
+}
+
+.mail-field {
+  grid-template-columns: 64px minmax(0, 1fr);
+  box-shadow: 0 -1px 0 rgba(84, 119, 107, 0.14) inset;
+}
+
+.mail-field textarea {
+  min-height: 180px;
+}
+
+.mail-compose-footer {
+  min-height: 82px;
+}
+
+.mail-send-button {
+  width: 66px;
+  height: 66px;
+  box-shadow: none;
+  font-family:
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  transform: rotate(-3deg);
+}
+
+.letter-detail-main {
+  width: min(980px, calc(100% - 32px));
+}
+
+.blog-letter-detail {
+  display: grid;
+  gap: 24px;
+}
+
+.blog-letter-detail > header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  padding-right: 0;
+}
+
+.blog-letter-detail h1 {
+  font-family:
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+}
+
+.blog-letter-detail > header .mail-stamp {
+  position: static;
+}
+
+.blog-letter-detail > figure {
+  margin: 0;
+}
+
+.blog-letter-detail .content-detail-body {
+  margin-top: 0;
+}
+
+.blog-letter-footer {
+  min-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.blog-signature {
+  transform: none;
+}
+
+@media (max-width: 760px) {
+  .mailbox-main {
+    padding-inline: 14px;
+  }
+
+  .mailbox-workspace {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .mail-list {
+    gap: 8px;
+  }
+
+  .mail-reading-header {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+
+  .mail-reading-avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .mail-stamp {
+    grid-column: 2;
+    justify-self: end;
+    width: 44px;
+    height: 44px;
+  }
+}

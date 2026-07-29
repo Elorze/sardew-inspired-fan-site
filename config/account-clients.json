@@ -1,0 +1,36 @@
+[
+  {
+    "id": "zhongzhong-world",
+    "name": "种种世界",
+    "origins": [
+      "https://pingnan-plants-site.vercel.app",
+      "http://127.0.0.1:8765"
+    ],
+    "redirectUris": [
+      "https://pingnan-plants-site.vercel.app/",
+      "http://127.0.0.1:8765/"
+    ]
+  },
+  {
+    "id": "zhongzhong-tavern",
+    "name": "种种酒馆",
+    "origins": [
+      "https://zhongzhongforever.net"
+    ],
+    "redirectUris": [
+      "https://zhongzhongforever.net/"
+    ]
+  },
+  {
+    "id": "dandelion-world",
+    "name": "蒲公英大世界",
+    "origins": [
+      "http://127.0.0.1:8787"
+    ],
+    "redirectUris": [
+      "http://127.0.0.1:8787/",
+      "http://127.0.0.1:8787/index.html",
+      "http://127.0.0.1:8787/index.html?branch=codex-island-terrain-reset&v=map-expand-1"
+    ]
+  }
+]

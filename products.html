@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="种种产品入口。" />
+    <title>产品｜种种大世界</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles.css?v=20260729-products-overview" />
+    <link rel="stylesheet" href="products.css?v=20260730-wisteria-clean-cut" />
+  </head>
+  <body data-page="products.html">
+    <div data-site-header></div>
+
+    <main class="products-direct">
+      <h1 class="visually-hidden">产品</h1>
+
+      <div class="products-slider-shell">
+        <button
+          class="products-slider-control products-slider-prev"
+          type="button"
+          aria-label="查看上一个产品"
+          title="上一个"
+        >‹</button>
+
+        <section
+          class="products-direct-grid"
+          aria-label="产品"
+          aria-roledescription="轮播"
+          tabindex="0"
+        >
+          <a
+            class="product-portal"
+            href="https://pingnan-plants-site.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-product-id="world"
+            aria-label="种种世界，第 1 屏，共 3 屏"
+          >
+            <img src="assets/gameplay-world.png" alt="种种世界花园实机画面" draggable="false" />
+            <strong class="product-portal-name">种种世界</strong>
+          </a>
+
+          <a
+            class="product-portal"
+            href="https://zhongzhongforever.net/"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-product-id="tavern"
+            aria-label="种种酒馆，第 2 屏，共 3 屏"
+          >
+            <img src="assets/gameplay-tavern.png" alt="种种酒馆入口实机画面" draggable="false" />
+            <strong class="product-portal-name">种种酒馆</strong>
+          </a>
+
+          <a
+            class="product-portal"
+            href="http://127.0.0.1:8787/index.html?branch=codex-island-terrain-reset&amp;v=map-expand-1"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-product-id="dandelion"
+            aria-label="蒲公英大世界，第 3 屏，共 3 屏"
+          >
+            <img src="assets/gameplay-dandelion.png" alt="蒲公英大世界岛屿实机画面" draggable="false" />
+            <strong class="product-portal-name">蒲公英大世界</strong>
+          </a>
+        </section>
+
+        <button
+          class="products-slider-control products-slider-next"
+          type="button"
+          aria-label="查看下一个产品"
+          title="下一个"
+        >›</button>
+      </div>
+
+      <section class="products-detail-panel" aria-live="polite" hidden>
+        <div class="products-detail-copy">
+          <p class="products-detail-kicker"></p>
+          <h2></h2>
+          <p class="products-detail-summary"></p>
+          <dl class="products-detail-facts"></dl>
+        </div>
+        <div class="products-detail-actions">
+          <a class="products-detail-link" href="#" target="_blank" rel="noopener noreferrer">进入</a>
+          <button class="products-detail-close" type="button">收起</button>
+        </div>
+      </section>
+    </main>
+
+    <div data-site-footer></div>
+    <script src="site-shell.js?v=20260729-header-avatar"></script>
+    <script src="products.js?v=20260730-wisteria-smooth"></script>
+    <script src="script.js?v=20260728-scroll-stories"></script>
+  </body>
+</html>

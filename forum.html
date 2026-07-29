@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="种种大世界的伙伴交流与植物成长记录。" />
+    <title>花园广场｜种种大世界</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles.css?v=20260729-community" />
+    <link rel="stylesheet" href="forum.css?v=20260730-garden-plaza" />
+  </head>
+  <body data-page="forum.html">
+    <div data-site-header></div>
+
+    <main class="forum-main">
+      <header class="forum-page-header">
+        <h1>花园广场</h1>
+      </header>
+
+      <section class="forum-speech-garden" aria-labelledby="forumSpeechGardenTitle">
+        <header>
+          <h2 id="forumSpeechGardenTitle">话语花园</h2>
+          <button id="forumGardenPick" type="button">随机采摘</button>
+        </header>
+        <div class="forum-speech-bed" id="forumSpeechBed" aria-live="polite"></div>
+        <article class="forum-picked-speech" id="forumPickedSpeech" hidden>
+          <img src="assets/forum-avatars/new-lilybell.png" alt="" />
+          <div>
+            <strong></strong>
+            <p></p>
+            <a href="forum-post.html?id=welcome">进入话题</a>
+          </div>
+        </article>
+      </section>
+
+      <div class="forum-plaza-layout">
+        <section class="forum-board" aria-label="帖子">
+          <a class="forum-row is-pinned" href="forum-post.html?id=welcome">
+            <span class="forum-avatar">
+              <img src="assets/forum-avatars/new-lilybell.png" alt="" />
+            </span>
+            <span class="forum-topic">
+              <span class="forum-topic-title">
+                <strong>先从这里认识大家</strong>
+                <small>置顶</small>
+              </span>
+              <span class="forum-topic-meta">
+                <b>种种</b>
+                <small>LV.7 结果</small>
+              </span>
+            </span>
+            <span class="forum-thread-stats">
+              <b class="forum-reply-count">24</b>
+              <time class="forum-updated" datetime="2026-07-29T09:12:00+08:00">09:12</time>
+            </span>
+          </a>
+
+          <a class="forum-row" href="forum-post.html?id=world">
+            <span class="forum-avatar">
+              <img src="assets/forum-avatars/new-clover.png" alt="" />
+            </span>
+            <span class="forum-topic">
+              <span class="forum-topic-title">
+                <strong>今天在种种世界发现了什么？</strong>
+              </span>
+              <span class="forum-topic-meta">
+                <b>青芽</b>
+                <small>LV.3 展叶</small>
+              </span>
+            </span>
+            <span class="forum-thread-stats">
+              <b class="forum-reply-count">12</b>
+              <time class="forum-updated" datetime="2026-07-29T08:47:00+08:00">08:47</time>
+            </span>
+          </a>
+
+          <a class="forum-row" href="forum-post.html?id=tavern">
+            <span class="forum-avatar">
+              <img src="assets/forum-avatars/new-mushroom.png" alt="" />
+            </span>
+            <span class="forum-topic">
+              <span class="forum-topic-title">
+                <strong>酒馆今晚留哪一盏灯</strong>
+              </span>
+              <span class="forum-topic-meta">
+                <b>小椒</b>
+                <small>LV.5 含苞</small>
+              </span>
+            </span>
+            <span class="forum-thread-stats">
+              <b class="forum-reply-count">18</b>
+              <time class="forum-updated" datetime="2026-07-29T00:26:00+08:00">00:26</time>
+            </span>
+          </a>
+
+          <a class="forum-row" href="forum-post.html?id=dandelion">
+            <span class="forum-avatar">
+              <img src="assets/forum-avatars/new-dandelion.png" alt="" />
+            </span>
+            <span class="forum-topic">
+              <span class="forum-topic-title">
+                <strong>蒲公英地图交换处</strong>
+              </span>
+              <span class="forum-topic-meta">
+                <b>风团</b>
+                <small>LV.4 抽枝</small>
+              </span>
+            </span>
+            <span class="forum-thread-stats">
+              <b class="forum-reply-count">9</b>
+              <time class="forum-updated" datetime="2026-07-28T23:15:00+08:00">昨天</time>
+            </span>
+          </a>
+
+          <a class="forum-row" href="forum-post.html?id=creative">
+            <span class="forum-avatar">
+              <img src="assets/forum-avatars/new-bluebell.png" alt="" />
+            </span>
+            <span class="forum-topic">
+              <span class="forum-topic-title">
+                <strong>晒晒贴在手账里的种种</strong>
+              </span>
+              <span class="forum-topic-meta">
+                <b>花花</b>
+                <small>LV.6 开花</small>
+              </span>
+            </span>
+            <span class="forum-thread-stats">
+              <b class="forum-reply-count">7</b>
+              <time class="forum-updated" datetime="2026-07-28T20:40:00+08:00">昨天</time>
+            </span>
+          </a>
+        </section>
+
+        <aside class="forum-member-panel" aria-label="签到与等级">
+          <div class="forum-rewards" data-forum-rewards hidden>
+            <span class="forum-reward-avatar" aria-hidden="true">
+              <img src="assets/forum-avatars/new-cattail.png" alt="" />
+            </span>
+            <strong id="forumMemberName"></strong>
+            <span id="forumMemberLevel">LV.1 发芽</span>
+            <span class="forum-points">
+              <b id="forumPoints">0</b>
+              <small>积分</small>
+            </span>
+            <button id="forumCheckIn" type="button">签到</button>
+            <output id="forumCheckInStatus" aria-live="polite"></output>
+          </div>
+          <button class="forum-login-card" data-forum-login type="button">
+            <img src="assets/forum-avatars/new-cattail.png" alt="" />
+            <span>登录后签到</span>
+          </button>
+        </aside>
+      </div>
+    </main>
+
+    <div data-site-footer></div>
+    <script src="site-shell.js?v=20260729-header-avatar"></script>
+    <script src="forum-auth.js?v=20260729-single-login"></script>
+    <script src="forum-board.js?v=20260730-garden-plaza"></script>
+    <script src="script.js?v=20260728-scroll-stories"></script>
+  </body>
+</html>

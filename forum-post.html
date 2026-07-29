@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="种种大世界的伙伴交流内容。" />
+    <title>花园来帖｜种种大世界</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles.css?v=20260729-forum-session" />
+    <link rel="stylesheet" href="forum.css?v=20260730-content-api" />
+  </head>
+  <body data-page="forum.html">
+    <div data-site-header></div>
+
+    <main class="forum-post-main">
+      <div class="forum-post-tools">
+        <a class="forum-back" href="forum.html" aria-label="返回花园广场">←</a>
+      </div>
+
+      <article class="forum-post">
+        <header class="forum-post-header">
+          <h1 id="forumPostTitle"></h1>
+        </header>
+        <div class="forum-post-floor">
+          <aside class="forum-post-author-card">
+            <span class="forum-avatar">
+              <img id="forumPostAvatar" src="assets/forum-avatars/new-lilybell.png" alt="" />
+            </span>
+            <strong id="forumPostAuthor"></strong>
+            <small id="forumPostLevel"></small>
+          </aside>
+          <div class="forum-post-content">
+            <div class="forum-post-body" id="forumPostBody"></div>
+            <time id="forumPostTime"></time>
+          </div>
+        </div>
+      </article>
+
+      <section class="forum-conversation" aria-labelledby="forumRepliesTitle">
+        <header class="forum-conversation-header">
+          <h2 id="forumRepliesTitle">回复</h2>
+          <output id="forumReplyCount" aria-label="回复数量">0</output>
+        </header>
+
+        <div class="forum-reply-list" id="forumReplyList" aria-live="polite"></div>
+
+        <form class="forum-reply-composer" id="forumReplyForm">
+          <div class="forum-composer-head">
+            <p class="forum-composer-identity">
+              <strong id="forumComposerIdentity">访客</strong>
+            </p>
+            <button
+              class="forum-sticker-toggle"
+              id="forumStickerToggle"
+              type="button"
+              aria-controls="forumStickerPicker"
+              aria-expanded="false"
+            >
+              表情
+            </button>
+          </div>
+
+          <label class="forum-message-field">
+            <span class="visually-hidden">回复内容</span>
+            <textarea
+              id="forumReplyMessage"
+              name="message"
+              maxlength="500"
+              placeholder="写下回复……"
+            ></textarea>
+          </label>
+
+          <div class="forum-sticker-picker" id="forumStickerPicker" hidden></div>
+
+          <fieldset class="forum-identity submission-identity">
+            <legend>刊登方式</legend>
+            <label>
+              <input type="radio" name="visibility" value="anonymous" checked />
+              <span>匿名</span>
+            </label>
+            <label>
+              <input type="radio" name="visibility" value="real" />
+              <span>实名</span>
+            </label>
+          </fieldset>
+
+          <footer class="forum-composer-footer">
+            <p id="forumReplyStatus" role="status" aria-live="polite"></p>
+            <button class="forum-reply-submit" type="submit">发送回复</button>
+          </footer>
+        </form>
+      </section>
+    </main>
+
+    <div data-site-footer></div>
+    <script src="site-shell.js?v=20260729-header-avatar"></script>
+    <script src="forum-auth.js?v=20260729-single-login"></script>
+    <script src="forum-board.js?v=20260729-pixel-points"></script>
+    <script src="forum-post.js?v=20260730-content-api"></script>
+    <script src="script.js?v=20260728-scroll-stories"></script>
+  </body>
+</html>

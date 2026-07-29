@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="种种邮箱，收取开发日记与创作来信，也可以写信给种种。" />
+    <title>种种邮箱｜种种大世界</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles.css?v=20260729-blog-mailbox" />
+    <link rel="stylesheet" href="blog-mailbox.css?v=20260730-content-api" />
+  </head>
+  <body class="mailbox-page" data-page="blog.html">
+    <div data-site-header></div>
+
+    <main class="mailbox-main">
+      <section class="mailbox-shell" aria-label="种种邮箱">
+        <header class="mailbox-toolbar">
+          <h1>来信</h1>
+
+          <div class="mailbox-actions">
+            <button class="mailbox-action receive-mail-button" type="button">
+              <span>收信</span>
+              <output aria-label="未读来信">3</output>
+            </button>
+            <button class="mailbox-action compose-mail-button" type="button" aria-pressed="false">
+              <span>写信</span>
+            </button>
+          </div>
+          <p class="visually-hidden mailbox-live-status" aria-live="polite"></p>
+        </header>
+
+        <div class="mailbox-workspace">
+          <nav class="mail-inbox" aria-label="来信">
+            <div class="mail-list">
+              <button class="mail-list-item is-active is-unread" type="button" data-mail-id="devlog" aria-pressed="true">
+                <span class="mail-unread-dot" aria-label="未读"></span>
+                <img class="mail-list-avatar" src="assets/home-watered-spirit-alpha-v1.png" alt="" />
+                <span class="mail-list-title">把三扇门安到同一条路上</span>
+                <time class="mail-list-date" datetime="2026-07-28">07.28</time>
+              </button>
+
+              <button class="mail-list-item is-unread" type="button" data-mail-id="manuscript" aria-pressed="false">
+                <span class="mail-unread-dot" aria-label="未读"></span>
+                <img class="mail-list-avatar" src="assets/home-depth-companions-side-alpha-v1.png" alt="" />
+                <span class="mail-list-title">蒲公英地图又长出一条小路</span>
+                <time class="mail-list-date" datetime="2026-07-27">07.27</time>
+              </button>
+
+              <button class="mail-list-item is-unread" type="button" data-mail-id="npc" aria-pressed="false">
+                <span class="mail-unread-dot" aria-label="未读"></span>
+                <img class="mail-list-avatar" src="assets/wiki-potted-sprout.png" alt="" />
+                <span class="mail-list-title">今天，三位新朋友开口了</span>
+                <time class="mail-list-date" datetime="2026-07-26">07.26</time>
+              </button>
+            </div>
+          </nav>
+
+          <section class="mail-stage">
+            <article class="mail-reading-pane is-opening" data-paper="sprout" aria-live="polite">
+              <img class="mail-floral-frame" src="assets/blog-floral-frame-v1.png" alt="" aria-hidden="true" />
+              <header class="mail-reading-header">
+                <img class="mail-reading-avatar" src="assets/home-watered-spirit-alpha-v1.png" alt="" />
+                <div>
+                  <h2>把三扇门安到同一条路上</h2>
+                  <time datetime="2026-07-28">2026.07.28</time>
+                  <p class="mail-reading-summary">三个世界的入口重新摆好了。花园更轻，酒馆更暖，蒲公英的路留了一点风。</p>
+                </div>
+                <span class="mail-stamp" aria-hidden="true">种种<br />07·28</span>
+              </header>
+
+              <figure class="mail-attachment">
+                <img src="assets/product-world-thumb.png" alt="种种世界花园全景" />
+              </figure>
+
+              <footer class="mail-reading-footer">
+                <a href="blog-post.html?id=devlog">打开信件</a>
+              </footer>
+            </article>
+
+            <form class="mail-compose-pane" data-paper="compose" hidden>
+              <img class="mail-floral-frame" src="assets/blog-floral-frame-v1.png" alt="" aria-hidden="true" />
+              <header class="mail-compose-header">
+                <h2>写给种种</h2>
+                <button class="mail-compose-close" type="button" aria-label="关闭写信界面">×</button>
+              </header>
+
+              <label class="mail-field mail-recipient">
+                <span>收件人</span>
+                <input type="text" value="种种" readonly />
+              </label>
+              <label class="mail-field">
+                <span>主题</span>
+                <input name="subject" type="text" placeholder="这封信想说什么" required />
+              </label>
+              <label class="mail-field mail-message-field">
+                <span>正文</span>
+                <textarea name="message" placeholder="写下想说的话……" required></textarea>
+              </label>
+              <fieldset class="mail-identity submission-identity">
+                <legend>刊登方式</legend>
+                <label>
+                  <input type="radio" name="visibility" value="anonymous" checked />
+                  <span>匿名</span>
+                </label>
+                <label>
+                  <input type="radio" name="visibility" value="real" />
+                  <span>实名</span>
+                </label>
+              </fieldset>
+
+              <footer class="mail-compose-footer">
+                <span class="mail-send-status" aria-live="polite"></span>
+                <img src="assets/blog-mail-ephemera-v1.png" alt="" aria-hidden="true" />
+                <button class="mail-send-button" type="submit">
+                  盖章<br />寄出
+                </button>
+              </footer>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <div data-site-footer></div>
+    <script src="site-shell.js?v=20260729-header-avatar"></script>
+    <script src="blog-mailbox.js?v=20260730-content-api"></script>
+  </body>
+</html>

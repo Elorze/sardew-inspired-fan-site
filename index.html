@@ -5,187 +5,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="一个受 Stardew Valley 氛围启发的非官方粉丝静态网站示例，使用原创文案和原创像素风素材。"
+      content="种种大世界汇集故事、原创画面、社区内容与旗下三款产品。"
     />
-    <title>Valley Hearth - 非官方灵感站</title>
+    <title>种种大世界</title>
     <link rel="icon" type="image/png" href="assets/favicon.png" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260729-home-depth" />
+    <link rel="stylesheet" href="home-experience.css?v=20260730-text-align" />
   </head>
-  <body>
-    <header class="site-header">
-      <a class="brand" href="#home" aria-label="Valley Hearth 首页">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <span>
-          <strong>Valley Hearth</strong>
-          <small>非官方 fan site</small>
-        </span>
-      </a>
+  <body data-page="index.html">
+    <div data-site-header></div>
 
-      <button class="menu-button" type="button" aria-label="打开导航" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
-      <nav class="site-nav" aria-label="主导航">
-        <a href="#story">介绍</a>
-        <a href="#media">画面</a>
-        <a href="#features">特色</a>
-        <a href="#platforms">平台</a>
-        <a href="#notes">更新</a>
-      </nav>
-    </header>
-
-    <main id="home">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">A gentle farming-inspired fan page</p>
-          <h1>把一天慢下来，种在像素田野里。</h1>
-          <p class="hero-text">
-            这是一个 Stardew Valley 氛围灵感站：安静的农场、温暖的小镇、钓鱼、采集和一点点夜晚灯火。
-            本项目仅用于学习与展示，不代表游戏官方。
-          </p>
-          <div class="hero-actions" aria-label="主要操作">
-            <a class="button primary" href="https://www.stardewvalley.net/" rel="noopener noreferrer">
-              前往官方页面
-            </a>
-            <a class="button secondary" href="#media">查看原创画面</a>
+    <main>
+      <section class="home-hero" data-home-depth>
+        <h1 class="visually-hidden">种种大世界</h1>
+        <div class="home-depth-scene" aria-hidden="true">
+          <div class="home-depth-layer-wrap home-depth-cloud-wrap">
+            <img
+              class="home-depth-layer home-depth-cloud"
+              src="assets/home-depth-background.png"
+              alt=""
+            />
+          </div>
+          <div class="home-depth-companions-wrap">
+            <img
+              class="home-depth-companions"
+              src="assets/home-depth-companions-side-alpha-v1.png"
+              alt=""
+            />
+          </div>
+          <div class="home-depth-spirit-wrap">
+            <img
+              class="home-depth-spirit"
+              src="assets/home-watered-spirit-alpha-v1.png"
+              alt=""
+            />
+          </div>
+          <div class="home-depth-logo-wrap">
+            <img
+              class="home-depth-logo"
+              src="assets/home-depth-logo-cropped.png"
+              alt=""
+            />
           </div>
         </div>
-
-        <figure class="hero-art">
-          <img src="assets/hero-farm.png" alt="原创像素风农场场景，包含田地、红色小屋、树木和天空" />
-          <figcaption>原创像素风素材，非官方游戏截图。</figcaption>
-        </figure>
       </section>
 
-      <section id="story" class="intro section-band">
-        <div class="section-heading">
-          <p class="eyebrow">Welcome to the valley</p>
-          <h2>一座适合重新开始的小镇</h2>
-        </div>
-        <div class="intro-grid">
-          <p>
-            这份页面参考的是“舒适、清晰、带有乡村游戏气息”的公开主页结构，而不是复刻任何官方源代码或资产。
-            你可以把它当作一个静态站模板：替换文案、替换链接、继续扩展更多 fan-made 内容。
-          </p>
-          <p>
-            页面中的图像均由本项目本地生成，用来表达农场、河流、森林和小镇的氛围。
-            所有涉及 Stardew Valley 的名称都只用于说明灵感来源。
-          </p>
-        </div>
-      </section>
+      <section class="home-showcase" aria-label="游戏实机画面">
+        <p class="home-color-note home-color-note-top">
+          <span class="home-note-unit">
+            <span>风从花园吹过来，世界正在醒来</span>
+            <small>THE GARDEN IS WAKING</small>
+          </span>
+        </p>
 
-      <section id="media" class="media">
-        <div class="section-heading">
-          <p class="eyebrow">Original scenes</p>
-          <h2>一组自制像素风场景</h2>
-        </div>
+        <div class="home-dual-showcase">
+          <div
+            class="home-motion-view"
+            role="region"
+            aria-roledescription="轮播"
+            aria-label="可手动切换的游戏画面"
+            tabindex="0"
+          >
+            <div class="home-motion-track" data-active-slide="0">
+              <figure class="home-motion-slide" aria-hidden="false">
+                <img
+                  src="assets/gameplay-world.png"
+                  alt="种种世界花园实机画面"
+                  decoding="async"
+                />
+              </figure>
+              <figure class="home-motion-slide" aria-hidden="true">
+                <img
+                  src="assets/gameplay-tavern.png"
+                  alt="种种酒馆实机画面"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+              <figure class="home-motion-slide" aria-hidden="true">
+                <img
+                  src="assets/gameplay-dandelion.png"
+                  alt="蒲公英大世界实机画面"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </div>
+            <button
+              class="home-motion-arrow home-motion-arrow-prev"
+              type="button"
+              aria-label="上一幅画面"
+              title="上一幅画面"
+            >
+              <span aria-hidden="true">‹</span>
+            </button>
+            <button
+              class="home-motion-arrow home-motion-arrow-next"
+              type="button"
+              aria-label="下一幅画面"
+              title="下一幅画面"
+            >
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
 
-        <div class="showcase" aria-live="polite">
-          <button class="carousel-control prev" type="button" aria-label="上一张"></button>
-          <figure class="scene is-active">
-            <img src="assets/scene-forage.png" alt="原创像素风森林采集场景" />
-            <figcaption>
-              <strong>森林小径</strong>
-              <span>清晨的蘑菇、树影和泥土路。</span>
-            </figcaption>
+          <figure class="home-still-view">
+            <img
+              src="assets/product-world-thumb.png"
+              alt="种种世界花园全景静帧"
+              loading="lazy"
+              decoding="async"
+            />
           </figure>
-          <figure class="scene">
-            <img src="assets/scene-river.png" alt="原创像素风河岸和木桥场景" />
-            <figcaption>
-              <strong>河岸木桥</strong>
-              <span>水面闪光，旁边有安静的小屋。</span>
-            </figcaption>
-          </figure>
-          <figure class="scene">
-            <img src="assets/scene-town.png" alt="原创像素风小镇广场场景" />
-            <figcaption>
-              <strong>黄昏小镇</strong>
-              <span>店铺、广场和一天结束前的暖色天空。</span>
-            </figcaption>
-          </figure>
-          <button class="carousel-control next" type="button" aria-label="下一张"></button>
         </div>
 
-        <div class="scene-dots" aria-label="场景选择"></div>
-      </section>
-
-      <section id="features" class="features section-band">
-        <div class="section-heading">
-          <p class="eyebrow">Things to love</p>
-          <h2>保留舒适感，重做表达方式</h2>
-        </div>
-
-        <div class="feature-grid">
-          <article>
-            <span class="feature-icon" aria-hidden="true">▣</span>
-            <h3>农场节奏</h3>
-            <p>从清晨浇水到傍晚整理背包，用紧凑区块呈现日常循环的轻松感。</p>
-          </article>
-          <article>
-            <span class="feature-icon" aria-hidden="true">◆</span>
-            <h3>小镇关系</h3>
-            <p>用简洁卡片表达人物、节日和社区氛围，适合作为后续内容入口。</p>
-          </article>
-          <article>
-            <span class="feature-icon" aria-hidden="true">▲</span>
-            <h3>探索收集</h3>
-            <p>森林、矿洞、海边和河流可以扩展为独立页面或图鉴模块。</p>
-          </article>
-          <article>
-            <span class="feature-icon" aria-hidden="true">●</span>
-            <h3>跨平台入口</h3>
-            <p>购买与了解链接统一指向官方页面，避免混淆来源。</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="platforms" class="platforms">
-        <div class="section-heading">
-          <p class="eyebrow">Play the real game</p>
-          <h2>支持正版，从官方渠道开始</h2>
-        </div>
-
-        <div class="platform-list">
-          <a href="https://www.stardewvalley.net/" rel="noopener noreferrer">前往官方页面</a>
-          <a href="https://store.steampowered.com/app/413150/Stardew_Valley/" rel="noopener noreferrer">
-            前往官方页面
-          </a>
-          <a href="https://www.stardewvalley.net/press/" rel="noopener noreferrer">前往官方页面</a>
-        </div>
-      </section>
-
-      <section id="notes" class="notes section-band">
-        <div class="section-heading">
-          <p class="eyebrow">Project notes</p>
-          <h2>当前版本记录</h2>
-        </div>
-
-        <div class="note-list">
-          <article>
-            <time datetime="2026-07-27">2026-07-27</time>
-            <h3>初版静态站完成</h3>
-            <p>包含首页、媒体轮播、特色区、正版入口和明确的非官方声明。</p>
-          </article>
-          <article>
-            <time datetime="2026-07-27">2026-07-27</time>
-            <h3>原创素材生成</h3>
-            <p>生成像素风农场、森林、河流、小镇四张 PNG，用于站点视觉展示。</p>
-          </article>
-        </div>
+        <p class="home-color-note home-color-note-bottom">
+          <span class="home-note-unit">
+            <span>慢慢走，每次回来都会遇见新的朋友</span>
+            <small>A NEW PATH, A NEW FRIEND</small>
+          </span>
+        </p>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <p>
-        Valley Hearth 是非官方粉丝/学习项目，不隶属于 ConcernedApe、Stardew Valley 或其发行相关方。
-      </p>
-      <p>
-        Stardew Valley 名称仅用于说明灵感来源。请通过官方渠道了解和购买游戏。
-      </p>
-    </footer>
+    <div data-site-footer></div>
 
-    <script src="script.js"></script>
+    <script src="site-shell.js?v=20260729-header-avatar"></script>
+    <script src="script.js?v=20260729-home-depth"></script>
+    <script src="home-experience.js?v=20260730-spirit-zone"></script>
   </body>
 </html>
