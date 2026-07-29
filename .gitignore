@@ -5,3 +5,4 @@ data/users.json
 data/account-state.json
 data/*.json
 node_modules/
+.vercel
