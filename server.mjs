@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 import { randomBytes, randomUUID } from "node:crypto";
 import { AlipaySdk } from "alipay-sdk";
 import { createAccountService } from "./account-service.mjs";
+import { createAnalyticsService } from "./analytics-service.mjs";
+import { moderateForumReply } from "./content-moderation.mjs";
 import {
   isOrderAmountEqual,
   mapAlipayTradeStatus,
@@ -54,16 +56,22 @@ const loadEnvFile = () => {
 
 loadEnvFile();
 
+const runtimeDataRoot = process.env.RUNTIME_DATA_ROOT?.trim()
+  ? resolve(rootDirectory, process.env.RUNTIME_DATA_ROOT.trim())
+  : process.env.VERCEL
+    ? resolve("/tmp", "zhongzhong-world")
+    : rootDirectory;
+
 ordersFile = resolve(
-  rootDirectory,
+  runtimeDataRoot,
   process.env.PAYMENT_ORDERS_FILE || "data/orders.json",
 );
 submissionsFile = resolve(
-  rootDirectory,
+  runtimeDataRoot,
   process.env.CONTENT_SUBMISSIONS_FILE || "data/content-submissions.json",
 );
 forumGardenFile = resolve(
-  rootDirectory,
+  runtimeDataRoot,
   process.env.FORUM_GARDEN_FILE || "data/forum-garden.json",
 );
 
@@ -71,6 +79,11 @@ const port = Number.parseInt(process.env.PORT || "8000", 10);
 const host =
   process.env.HOST?.trim() ||
   (process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1");
+const accountBaseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : `http://127.0.0.1:${port}`;
 
 const readSecret = (inlineName, pathName) => {
   const inlineValue = process.env[inlineName]?.trim();
@@ -129,7 +142,12 @@ const alipaySdk = isAlipayConfigured
 
 const accountService = await createAccountService({
   rootDirectory,
-  localBaseUrl: `http://127.0.0.1:${port}`,
+  dataDirectory: runtimeDataRoot,
+  localBaseUrl: accountBaseUrl,
+});
+const analyticsService = await createAnalyticsService({
+  rootDirectory,
+  dataDirectory: runtimeDataRoot,
 });
 
 let orders = {};
@@ -147,8 +165,8 @@ const defaultForumGarden = {
     text: "先从这里认识大家，把路标轻轻插在花园入口。",
     speaker: "种种",
     avatar: "new-lilybell.png",
-    heat: 42,
-    picks: 8,
+    heat: 0,
+    picks: 0,
   },
   world: {
     id: "world",
@@ -156,8 +174,8 @@ const defaultForumGarden = {
     text: "今天在种种世界发现了什么？叶子会替你记住路线。",
     speaker: "青芽",
     avatar: "new-clover.png",
-    heat: 31,
-    picks: 5,
+    heat: 0,
+    picks: 0,
   },
   tavern: {
     id: "tavern",
@@ -165,8 +183,8 @@ const defaultForumGarden = {
     text: "酒馆今晚留哪一盏灯，路过的人都可以坐一会儿。",
     speaker: "小椒",
     avatar: "new-mushroom.png",
-    heat: 38,
-    picks: 7,
+    heat: 0,
+    picks: 0,
   },
   dandelion: {
     id: "dandelion",
@@ -174,8 +192,8 @@ const defaultForumGarden = {
     text: "蒲公英地图交换处，风会把新的路带回来。",
     speaker: "风团",
     avatar: "new-dandelion.png",
-    heat: 27,
-    picks: 4,
+    heat: 0,
+    picks: 0,
   },
   creative: {
     id: "creative",
@@ -183,8 +201,8 @@ const defaultForumGarden = {
     text: "晒晒贴在手账里的种种，把小小的图案种进纸页。",
     speaker: "花花",
     avatar: "new-bluebell.png",
-    heat: 24,
-    picks: 3,
+    heat: 0,
+    picks: 0,
   },
 };
 
@@ -397,6 +415,19 @@ const createContentSubmission = async (request, response) => {
     return;
   }
 
+  if (type === "forum-reply") {
+    const moderation = moderateForumReply(message, {
+      hasSticker: /^\[表情\]/.test(message),
+    });
+    if (!moderation.ok) {
+      sendJson(response, 422, {
+        code: "MODERATION_REJECTED",
+        message: moderation.reason,
+      });
+      return;
+    }
+  }
+
   const now = new Date().toISOString();
   const submission = {
     id: randomUUID(),
@@ -494,6 +525,16 @@ const isTrustedPaymentOrigin = (request) => {
     ).origin;
     const publicOrigin = new URL(alipayConfig.publicBaseUrl).origin;
     return origin === requestOrigin || origin === publicOrigin;
+  } catch {
+    return false;
+  }
+};
+
+const isTrustedSiteOrigin = (request) => {
+  const origin = request.headers.origin;
+  if (!origin) return true;
+  try {
+    return new URL(origin).host === request.headers.host;
   } catch {
     return false;
   }
@@ -753,6 +794,7 @@ const serveStaticFile = async (url, response) => {
     pathname.startsWith("/.") ||
     pathname.startsWith("/certs/") ||
     pathname.startsWith("/data/") ||
+    pathname.endsWith(".mjs") ||
     ["/server.mjs", "/package.json", "/package-lock.json"].includes(pathname);
   if (blocked) {
     sendText(response, 404, "Not found");
@@ -792,8 +834,70 @@ const server = createServer(async (request, response) => {
       sendJson(response, 200, {
         ok: true,
         alipayConfigured: isAlipayConfigured,
+        analytics: { database: "sqlite" },
         account: accountService.health(),
       });
+      return;
+    }
+
+    if (
+      request.method === "POST" &&
+      ["/api/analytics/view", "/api/analytics/heat"].includes(url.pathname)
+    ) {
+      if (!isTrustedSiteOrigin(request)) {
+        sendJson(response, 403, {
+          code: "ORIGIN_NOT_ALLOWED",
+          message: "请从种种大世界记录互动。",
+        });
+        return;
+      }
+      let body;
+      try {
+        body = await parseJsonBody(request);
+        const stats =
+          url.pathname === "/api/analytics/view"
+            ? analyticsService.recordView(request, response, body.pageKey)
+            : analyticsService.stampHeat(request, response, body.pageKey);
+        sendJson(response, 200, stats);
+      } catch (error) {
+        if (error.message !== "INVALID_PAGE_KEY") throw error;
+        sendJson(response, 400, {
+          code: "INVALID_PAGE_KEY",
+          message: "页面标识不正确。",
+        });
+      }
+      return;
+    }
+
+    if (
+      request.method === "GET" &&
+      url.pathname === "/api/analytics/stats"
+    ) {
+      try {
+        sendJson(
+          response,
+          200,
+          analyticsService.getStats(
+            request,
+            response,
+            url.searchParams.get("page"),
+          ),
+        );
+      } catch (error) {
+        if (error.message !== "INVALID_PAGE_KEY") throw error;
+        sendJson(response, 400, {
+          code: "INVALID_PAGE_KEY",
+          message: "页面标识不正确。",
+        });
+      }
+      return;
+    }
+
+    if (
+      request.method === "GET" &&
+      url.pathname === "/api/analytics/summary"
+    ) {
+      sendJson(response, 200, { pages: analyticsService.summary() });
       return;
     }
 

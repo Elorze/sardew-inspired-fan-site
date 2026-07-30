@@ -38,13 +38,35 @@ const forumStreakFor = (user) =>
   user.forumCheckInStreak >= 0
     ? user.forumCheckInStreak
     : 0;
-const forumRewardStatus = (user, awarded = 0) => {
+const forumWaterCountFor = (user) =>
+  Number.isSafeInteger(user.forumWaterCount) && user.forumWaterCount >= 0
+    ? user.forumWaterCount
+    : 0;
+const forumWaterAchievement = (user, newlyUnlocked = false) => {
+  const target = 3;
+  const progress = Math.min(forumWaterCountFor(user), target);
+  return {
+    id: "morning-dew-gardener",
+    title: "晨露园丁",
+    progress,
+    target,
+    unlocked: progress >= target,
+    newlyUnlocked,
+  };
+};
+const forumRewardStatus = (
+  user,
+  { awarded = 0, achievementUnlocked = false } = {},
+) => {
   const today = chinaDateKey();
   return {
     points: forumPointsFor(user),
     streak: forumStreakFor(user),
     checkedInToday: user.forumLastCheckInDate === today,
     lastCheckInDate: user.forumLastCheckInDate || null,
+    wateredToday: user.forumLastWaterDate === today,
+    waterCount: forumWaterCountFor(user),
+    waterAchievement: forumWaterAchievement(user, achievementUnlocked),
     awarded,
   };
 };
@@ -222,15 +244,16 @@ const verifyPassword = async (password, user) => {
 
 export const createAccountService = async ({
   rootDirectory,
+  dataDirectory = rootDirectory,
   env = process.env,
   localBaseUrl,
 }) => {
   const usersFile = resolve(
-    rootDirectory,
+    dataDirectory,
     env.ACCOUNT_USERS_FILE?.trim() || "data/users.json",
   );
   const stateFile = resolve(
-    rootDirectory,
+    dataDirectory,
     env.ACCOUNT_STATE_FILE?.trim() || "data/account-state.json",
   );
   const clientsFile = resolve(
@@ -591,7 +614,39 @@ export const createAccountService = async ({
     activeSession.user.forumLastCheckInDate = today;
     activeSession.user.updatedAt = nowIso();
     await persistUsers();
-    sendJson(response, 200, forumRewardStatus(activeSession.user, 10));
+    sendJson(
+      response,
+      200,
+      forumRewardStatus(activeSession.user, { awarded: 10 }),
+    );
+  };
+
+  const waterForumGarden = async (request, response) => {
+    if (!requireSafeMutation(request, response)) return;
+    const activeSession = requireBrowserAccount(request, response);
+    if (!activeSession) return;
+
+    const today = chinaDateKey();
+    if (activeSession.user.forumLastWaterDate === today) {
+      sendJson(response, 200, forumRewardStatus(activeSession.user));
+      return;
+    }
+
+    const previousCount = forumWaterCountFor(activeSession.user);
+    const nextCount = previousCount + 1;
+    activeSession.user.forumPoints = forumPointsFor(activeSession.user) + 3;
+    activeSession.user.forumWaterCount = nextCount;
+    activeSession.user.forumLastWaterDate = today;
+    activeSession.user.updatedAt = nowIso();
+    await persistUsers();
+    sendJson(
+      response,
+      200,
+      forumRewardStatus(activeSession.user, {
+        awarded: 3,
+        achievementUnlocked: previousCount < 3 && nextCount >= 3,
+      }),
+    );
   };
 
   const updateProfile = async (request, response) => {
@@ -936,6 +991,13 @@ export const createAccountService = async ({
       url.pathname === "/api/auth/forum-check-in"
     ) {
       await checkInToForum(request, response);
+      return true;
+    }
+    if (
+      request.method === "POST" &&
+      url.pathname === "/api/auth/forum-water"
+    ) {
+      await waterForumGarden(request, response);
       return true;
     }
     if (request.method === "POST" && url.pathname === "/api/auth/register") {

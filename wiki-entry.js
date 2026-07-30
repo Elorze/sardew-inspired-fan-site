@@ -2,8 +2,9 @@ const wikiEntries = {
   zhongzhong: {
     category: "伙伴",
     title: "种种",
-    image: "assets/gameplay-world.png",
-    alt: "种种世界中的花园场景",
+    image: "assets/wiki-pixel/zhongzhong-v2.png",
+    imageMode: "sprite",
+    alt: "完整的种种精灵像素图",
     intro: "种种是这些世界的发起者，也是植物、来信和日常碎片的长期记录者。",
     facts: [
       ["负责", "世界方向、内容整理与持续创作"],
@@ -19,8 +20,9 @@ const wikiEntries = {
   "world-builder": {
     category: "伙伴",
     title: "世界搭建伙伴",
-    image: "assets/gameplay-dandelion.png",
-    alt: "蒲公英大世界的岛屿场景",
+    image: "assets/wiki-pixel/world-builder.png",
+    imageMode: "sprite",
+    alt: "完整的世界搭建伙伴像素图",
     intro: "负责把草地、小屋、道路和岛屿拼成真正能探索的空间。",
     facts: [
       ["负责", "场景搭建、路线调整与交互测试"],
@@ -36,8 +38,9 @@ const wikiEntries = {
   "plant-keeper": {
     category: "伙伴",
     title: "植物记录伙伴",
-    image: "assets/scene-forage.png",
-    alt: "林地中的植物观察画面",
+    image: "assets/wiki-pixel/plant-keeper.png",
+    imageMode: "sprite",
+    alt: "完整的植物记录伙伴像素图",
     intro: "在叶片、花期和生长速度之间寻找规律，也负责提醒大家别忘记浇水。",
     facts: [
       ["负责", "植物辨认、图鉴整理与生长记录"],
@@ -53,8 +56,9 @@ const wikiEntries = {
   "story-host": {
     category: "伙伴",
     title: "酒馆故事伙伴",
-    image: "assets/gameplay-tavern.png",
-    alt: "种种酒馆的室内画面",
+    image: "assets/wiki-pixel/story-host.png",
+    imageMode: "sprite",
+    alt: "完整的酒馆故事伙伴像素图",
     intro: "守着酒馆夜灯和信箱，把来往的消息整理成可以被再次读到的故事。",
     facts: [
       ["负责", "来信接收、故事整理与酒馆值夜"],
@@ -70,8 +74,9 @@ const wikiEntries = {
   "dandelion-plant": {
     category: "植物",
     title: "蒲公英",
-    image: "assets/gameplay-dandelion.png",
-    alt: "蒲公英岛屿与风的画面",
+    image: "assets/home-sprite-dandelion.png",
+    imageMode: "sprite",
+    alt: "完整的蒲公英植物伙伴像素图",
     intro: "成熟以后把种子交给风，是蒲公英大世界里关于远行的第一个象征。",
     facts: [
       ["花期", "春末到初夏"],
@@ -87,8 +92,9 @@ const wikiEntries = {
   "four-leaf-sprite": {
     category: "植物",
     title: "四叶草精灵",
-    image: "assets/scene-forage.png",
-    alt: "潮湿林地与采集植物画面",
+    image: "assets/home-sprite-clover.png",
+    imageMode: "sprite",
+    alt: "完整的四叶草精灵",
     intro: "藏在潮湿林地里的小型植物精灵，第四片叶子需要很久才会完全展开。",
     facts: [
       ["出现", "树影下、苔石边和雨后的木桩旁"],
@@ -104,8 +110,9 @@ const wikiEntries = {
   "moon-mint": {
     category: "植物",
     title: "月光薄荷",
-    image: "assets/scene-town.png",
-    alt: "夜色中的小镇与植物画面",
+    image: "assets/wiki-moon-mint-pixel-v1.png",
+    imageMode: "sprite",
+    alt: "完整的月光薄荷植物伙伴",
     intro: "天黑后叶缘会微微变亮，适合放在酒馆窗边陪着晚归的人。",
     facts: [
       ["气味", "清凉，随后有很淡的甜味"],
@@ -121,8 +128,9 @@ const wikiEntries = {
   bellflower: {
     category: "植物",
     title: "风铃草",
-    image: "assets/scene-river.png",
-    alt: "河岸边的蓝色水面与植物",
+    image: "assets/home-sprite-bluebell.png",
+    imageMode: "sprite",
+    alt: "完整的风铃草植物伙伴",
     intro: "河岸边的淡蓝小花，风经过时整片花茎会朝同一个方向轻轻摆动。",
     facts: [
       ["花色", "淡蓝、蓝紫，偶尔接近白色"],
@@ -138,8 +146,9 @@ const wikiEntries = {
   "cloud-moss": {
     category: "植物",
     title: "云朵苔",
-    image: "assets/scene-forage.png",
-    alt: "林地石面上的苔藓环境",
+    image: "assets/wiki-cloud-moss-pixel-v1.png",
+    imageMode: "object",
+    alt: "石面上完整的云朵苔",
     intro: "贴着潮湿石面缓慢铺开的浅色苔藓，触感像刚晒过的软布。",
     facts: [
       ["颜色", "灰绿、浅薄荷绿"],
@@ -155,7 +164,7 @@ const wikiEntries = {
   "spring-garden": {
     category: "地点",
     title: "春日花园",
-    image: "assets/gameplay-world.png",
+    image: "assets/product-world-thumb.png",
     alt: "种种世界的春日花园场景",
     intro: "种种世界里最早醒来的地方，苗圃、石径和小屋每天都有细小变化。",
     facts: [
@@ -172,7 +181,7 @@ const wikiEntries = {
   "tavern-corner": {
     category: "地点",
     title: "酒馆角落",
-    image: "assets/gameplay-tavern.png",
+    image: "assets/product-tavern-thumb.png",
     alt: "种种酒馆靠近壁炉的角落",
     intro: "靠近壁炉的一张旧木桌，是交换消息、拆信和短暂停留的地方。",
     facts: [
@@ -189,7 +198,7 @@ const wikiEntries = {
   "dandelion-island": {
     category: "地点",
     title: "蒲公英岛",
-    image: "assets/gameplay-dandelion.png",
+    image: "assets/product-dandelion-thumb.png",
     alt: "蒲公英大世界的岛屿全景",
     intro: "被海风围住的小岛，远处的道路和地形仍在随着版本继续生长。",
     facts: [
@@ -206,7 +215,7 @@ const wikiEntries = {
   "river-watch": {
     category: "地点",
     title: "河岸观察点",
-    image: "assets/scene-river.png",
+    image: "assets/wiki-river-observation-pixel-v1.png",
     alt: "黄昏时的河岸观察点",
     intro: "黄昏时水面会变成粉蓝色，附近也最容易发现刚出现的湿地植物。",
     facts: [
@@ -223,8 +232,9 @@ const wikiEntries = {
   "seed-notebook": {
     category: "物品",
     title: "花种手账",
-    image: "assets/merch-sticker-world.png",
-    alt: "种种世界主题的植物记录图像",
+    image: "assets/wiki-seed-notebook-pixel-v1.png",
+    imageMode: "object",
+    alt: "完整的花种手账像素图",
     intro: "一本夹着种子袋、叶片拓印和未完成日期的随身记录册。",
     facts: [
       ["用途", "记录播种、出芽、花期与观察地点"],
@@ -240,8 +250,9 @@ const wikiEntries = {
   "travel-clip": {
     category: "物品",
     title: "旅行地图夹",
-    image: "assets/merch-sticker-map.png",
-    alt: "蒲公英岛路线主题图像",
+    image: "assets/wiki-travel-map-clip-pixel-v1.png",
+    imageMode: "object",
+    alt: "完整的旅行地图夹像素图",
     intro: "把路线、票据和路边捡到的小纸片收在一起的便携地图夹。",
     facts: [
       ["用途", "保存地图、路线标记与途中资料"],
@@ -257,8 +268,9 @@ const wikiEntries = {
   "watering-can": {
     category: "物品",
     title: "蓝色浇水壶",
-    image: "assets/hero-farm.png",
-    alt: "花园与种植工具场景",
+    image: "assets/wiki-watering-can-pixel-v1.png",
+    imageMode: "object",
+    alt: "完整的蓝色浇水壶像素图",
     intro: "容量不大，但刚好够照顾窗边那一排幼苗。",
     facts: [
       ["用途", "幼苗和小型盆栽的日常浇水"],
@@ -291,7 +303,7 @@ const wikiEntries = {
   "first-seed": {
     category: "故事",
     title: "第一颗种子",
-    image: "assets/gameplay-world.png",
+    image: "assets/wiki-pixel/first-seed-v2.png",
     alt: "种种世界最初的花园场景",
     intro: "一个很小的决定，后来长成了许多彼此相连的世界。",
     facts: [
@@ -308,8 +320,9 @@ const wikiEntries = {
   "rain-letter": {
     category: "故事",
     title: "雨后的来信",
-    image: "assets/scene-river.png",
-    alt: "雨后河岸与来信故事场景",
+    image: "assets/mail-icon-inbox-pixel-blue-v2.png",
+    imageMode: "object",
+    alt: "蓝色像素信箱图标",
     intro: "信封被雨打湿了一角，里面却还留着很淡的花香。",
     facts: [
       ["收到", "一个连续下雨的下午"],
@@ -325,7 +338,7 @@ const wikiEntries = {
   "tavern-dinner": {
     category: "故事",
     title: "酒馆晚餐",
-    image: "assets/gameplay-tavern.png",
+    image: "assets/wiki-pixel/tavern-dinner-v2.png",
     alt: "种种酒馆晚餐场景",
     intro: "一顿没有菜单的晚餐，每个人都带来了一点东西。",
     facts: [
@@ -342,7 +355,7 @@ const wikiEntries = {
   "dandelion-trip": {
     category: "故事",
     title: "蒲公英远行",
-    image: "assets/gameplay-dandelion.png",
+    image: "assets/wiki-pixel/dandelion-trip-v2.png",
     alt: "蒲公英种子越过岛屿的场景",
     intro: "种子越过海面以后，新的地图才第一次向外展开。",
     facts: [
@@ -424,7 +437,7 @@ const wikiFallbackImages = {
   地点: "assets/wiki-filter-places.png",
   物品: "assets/wiki-filter-items.png",
   故事: "assets/wiki-filter-stories.png",
-  产品: "assets/wiki-filter-projects.png",
+  项目: "assets/wiki-filter-projects.png",
   default: "assets/gameplay-world.png",
 };
 
@@ -459,6 +472,7 @@ if (wikiCategory && wikiTitle && wikiIntro && wikiImage && wikiFacts && wikiNote
   wikiIntro.textContent = wikiEntry.intro;
   wikiImage.src = wikiEntry.image || wikiFallbackImages[wikiEntry.category] || wikiFallbackImages.default;
   wikiImage.alt = wikiEntry.alt || `${wikiEntry.title}的资料展位`;
+  wikiImage.dataset.imageMode = wikiEntry.imageMode || "scene";
   document.title = `${wikiEntry.title}｜种种大世界`;
 
   wikiEntry.facts.forEach(([label, value]) => {
@@ -477,3 +491,28 @@ if (wikiCategory && wikiTitle && wikiIntro && wikiImage && wikiFacts && wikiNote
     wikiNotes.append(paragraph);
   });
 }
+
+const wikiDetailMain = document.querySelector(".content-detail-main");
+let wikiDetailSwipeX = 0;
+let wikiDetailSwipeY = 0;
+
+wikiDetailMain?.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse") return;
+  wikiDetailSwipeX = event.clientX;
+  wikiDetailSwipeY = event.clientY;
+});
+
+wikiDetailMain?.addEventListener("pointerup", (event) => {
+  if (event.pointerType === "mouse") return;
+  const deltaX = event.clientX - wikiDetailSwipeX;
+  const deltaY = event.clientY - wikiDetailSwipeY;
+  if (deltaX > -64 || Math.abs(deltaX) < Math.abs(deltaY) * 1.35) return;
+  wikiDetailMain.classList.add("is-swipe-exit");
+  window.setTimeout(() => {
+    window.location.href = "wiki.html";
+  }, 170);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") window.location.href = "wiki.html";
+});

@@ -1,7 +1,5 @@
 const productsRail = document.querySelector(".products-direct-grid");
 const productSlides = [...document.querySelectorAll(".product-portal")];
-const previousProductButton = document.querySelector(".products-slider-prev");
-const nextProductButton = document.querySelector(".products-slider-next");
 const productDetailPanel = document.querySelector(".products-detail-panel");
 const productDetailKicker = document.querySelector(".products-detail-kicker");
 const productDetailTitle = document.querySelector(".products-detail-panel h2");
@@ -180,14 +178,6 @@ const showProductSlide = (index, behavior = "smooth") => {
     scheduleAutoplay();
   }, 520);
 };
-
-previousProductButton?.addEventListener("click", () => {
-  showProductSlide(activeProductSlide - 1);
-});
-
-nextProductButton?.addEventListener("click", () => {
-  showProductSlide(activeProductSlide + 1);
-});
 
 productsRail?.addEventListener("keydown", (event) => {
   if (event.key === "ArrowLeft") {

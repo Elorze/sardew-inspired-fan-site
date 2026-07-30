@@ -3,82 +3,108 @@ const shopCatalog = {
     name: "种种世界贴纸包",
     shortName: "世界贴纸包",
     price: 18,
-    image: "assets/merch-sticker-world-pixel.png",
+    image: "assets/shop-products/merch-sticker-world-pixel.png",
     description: "把小屋、花朵和种种伙伴收进一袋，适合装点手账与随身小物。",
     spec: "6 枚 / 单枚约 4–6 cm",
     material: "哑面防水贴纸",
+    kind: "sticker",
+    back: "paper",
+    tags: ["手账", "防水", "花园"],
   },
   "merch-02": {
     name: "小伙伴异形贴纸组",
     shortName: "伙伴异形贴",
     price: 22,
-    image: "assets/merch-sticker-companions.png",
+    image: "assets/shop-products/merch-sticker-companions.png",
     description: "不同轮廓的小伙伴贴纸，每一枚都保留角色自己的形状。",
     spec: "8 枚 / 独立模切",
     material: "亮面防水贴纸",
+    kind: "sticker",
+    back: "paper",
+    tags: ["异形", "伙伴", "亮面"],
   },
   "merch-03": {
     name: "蒲公英地图贴纸套装",
     shortName: "地图贴纸组",
     price: 26,
-    image: "assets/merch-sticker-map.png",
+    image: "assets/shop-products/merch-sticker-map.png",
     description: "以蒲公英大世界地图为主图，搭配地点与植物小贴纸。",
     spec: "A6 贴纸页 × 2",
     material: "和纸贴纸",
+    kind: "sticker",
+    back: "paper",
+    tags: ["地图", "和纸", "蒲公英"],
   },
   "merch-04": {
     name: "种种精灵亚克力挂件",
     shortName: "精灵挂件",
     price: 32,
-    image: "assets/merch-keychain-pixel-v2.png",
+    image: "assets/shop-products/merch-keychain-pixel-v2.png",
     description: "把小精灵挂在钥匙、背包或随身收纳袋上，一起出门。",
     spec: "约 55 mm / 单面图案",
     material: "透明亚克力、金色扣件",
+    kind: "acrylic",
+    depth: "solid",
+    tags: ["挂件", "透明", "随身"],
   },
   "merch-05": {
     name: "蓝花园和纸胶带",
     shortName: "花园胶带",
     price: 16,
-    image: "assets/merch-tape-pixel-v1.png",
+    image: "assets/shop-products/merch-tape-pixel-v1.png",
     description: "蓝色花枝循环图案，适合封信、拼贴与手账分栏。",
     spec: "15 mm × 5 m",
     material: "可撕和纸",
+    kind: "tape",
+    depth: "solid",
+    tags: ["胶带", "蓝花园", "拼贴"],
   },
   "merch-06": {
     name: "盆栽伙伴徽章组",
     shortName: "盆栽徽章",
     price: 28,
-    image: "assets/merch-badges-pixel-v1.png",
+    image: "assets/shop-products/merch-badges-pixel-v1.png",
     description: "两位盆栽伙伴成套出现，可别在帆布包、围裙或帽子上。",
     spec: "约 32 mm × 2",
     material: "金属烤漆",
+    kind: "badge",
+    depth: "solid",
+    tags: ["徽章", "盆栽", "金属"],
   },
   "merch-07": {
     name: "春日花朵刺绣章",
     shortName: "花朵刺绣章",
     price: 24,
-    image: "assets/merch-patch-pixel-v2.png",
+    image: "assets/shop-products/merch-patch-pixel-v2.png",
     description: "柔软的花朵纹样，可缝在衣物上，也可熨贴在布袋上。",
     spec: "约 65 mm",
     material: "棉线刺绣、热熔背胶",
+    kind: "patch",
+    depth: "solid",
+    tags: ["刺绣", "布袋", "春日"],
   },
   "merch-08": {
     name: "花园一角便签本",
     shortName: "花园便签",
     price: 18,
-    image: "assets/merch-memo-pixel-v2.png",
+    image: "assets/shop-products/merch-memo-pixel-v2.png",
     description: "四周长着花与藤蔓，中间留给今天要记住的小事情。",
     spec: "80 × 80 mm / 50 张",
     material: "书写纸",
+    kind: "paper",
+    back: "paper",
+    tags: ["便签", "书写", "藤蔓"],
   },
   "merch-09": {
     name: "花园伙伴异形贴",
     shortName: "花园伙伴贴",
     price: 20,
-    image: "assets/merch-stickers-pixel-v2.png",
+    image: "assets/shop-products/merch-stickers-pixel-v2.png",
     description: "蘑菇、小精灵与洒水壶组成的三枚大尺寸异形贴。",
     spec: "3 枚 / 单枚约 6 cm",
     material: "防水 PVC",
+    kind: "sticker",
+    tags: ["大贴", "小精灵", "PVC"],
   },
   "merch-10": {
     name: "种种世界纪念画片",
@@ -88,6 +114,9 @@ const shopCatalog = {
     description: "记录种种世界花园全景，适合收藏或寄给远方的朋友。",
     spec: "A6 / 单张",
     material: "300g 细纹纸",
+    kind: "postcard",
+    back: "paper",
+    tags: ["画片", "花园", "寄送"],
   },
   "merch-11": {
     name: "种种酒馆纪念画片",
@@ -97,6 +126,9 @@ const shopCatalog = {
     description: "酒馆里的相遇被印成一张小画片，背面可以写一封短信。",
     spec: "A6 / 单张",
     material: "300g 细纹纸",
+    kind: "postcard",
+    back: "paper",
+    tags: ["画片", "酒馆", "明信片"],
   },
   "merch-12": {
     name: "蒲公英大世界纪念画片",
@@ -106,6 +138,9 @@ const shopCatalog = {
     description: "蒲公英地图主题画片，收录世界道路与探索区域。",
     spec: "A6 / 单张",
     material: "300g 细纹纸",
+    kind: "postcard",
+    back: "paper",
+    tags: ["画片", "地图", "探索"],
   },
   "merch-13": {
     name: "窗边种种盆栽",
@@ -116,6 +151,8 @@ const shopCatalog = {
     spec: "含 8 cm 花盆与养护卡",
     material: "陶盆、培养土、植物幼苗",
     kind: "plant",
+    depth: "solid",
+    tags: ["绿植", "窗边", "养护卡"],
   },
   "merch-14": {
     name: "浅蓝拼花地砖样片",
@@ -126,31 +163,84 @@ const shopCatalog = {
     spec: "100 × 100 mm / 单片",
     material: "哑面陶瓷",
     kind: "floor",
+    tags: ["地砖", "杯垫", "浅蓝"],
   },
   "merch-15": {
     name: "小精灵手办模型",
     shortName: "小精灵手办",
     price: 68,
-    image: "assets/merch-keychain-pixel-v2.png",
+    image: "assets/shop-products/merch-figure-pixel-v1.png",
     description: "桌面尺寸的小精灵模型，适合放在书架、电脑旁或植物角。",
     spec: "约 7 cm / 含小底座",
     material: "树脂模型、手工上色",
     kind: "figure",
+    depth: "solid",
+    tags: ["手办", "桌面", "底座"],
   },
   "merch-16": {
     name: "种种卡套",
     shortName: "种种卡套",
     price: 24,
-    image: "assets/product-world-thumb.png",
+    image: "assets/shop-products/merch-card-sleeve-pixel-v1.png",
     description: "可放交通卡、门禁卡或收藏卡，正面是种种世界图案。",
     spec: "标准卡尺寸 / 单个",
     material: "磨砂 PVC、透明夹层",
     kind: "card",
+    back: "paper",
+    tags: ["卡套", "磨砂", "随身"],
+  },
+  "merch-17": {
+    name: "蓝铃花亚克力挂件",
+    shortName: "蓝铃花挂件",
+    price: 32,
+    image: "assets/shop-products/merch-keychain-pixel-v1.png",
+    description: "蓝铃花伙伴的随身挂件，可挂在钥匙、背包或收纳袋上。",
+    spec: "约 55 mm / 单面图案",
+    material: "透明亚克力、金色扣件",
+    kind: "acrylic",
+    depth: "solid",
+    tags: ["挂件", "蓝铃花", "随身"],
+  },
+  "merch-18": {
+    name: "植物观察便签",
+    shortName: "观察便签",
+    price: 18,
+    image: "assets/shop-products/merch-memo-pixel-v1.png",
+    description: "留给植物观察、待办小事与随手记下的新发现。",
+    spec: "80 × 80 mm / 50 张",
+    material: "书写纸",
+    kind: "paper",
+    back: "paper",
+    tags: ["便签", "观察", "书写"],
+  },
+  "merch-19": {
+    name: "蓝铃花刺绣章",
+    shortName: "蓝铃花绣章",
+    price: 24,
+    image: "assets/shop-products/merch-patch-pixel-v1.png",
+    description: "淡蓝花朵刺绣章，可缝制或熨贴在衣物与布袋上。",
+    spec: "约 65 mm",
+    material: "棉线刺绣、热熔背胶",
+    kind: "patch",
+    depth: "solid",
+    tags: ["刺绣", "蓝铃花", "布袋"],
+  },
+  "merch-20": {
+    name: "小精灵贴纸页",
+    shortName: "精灵贴纸页",
+    price: 20,
+    image: "assets/shop-products/merch-stickers-pixel-v1.png",
+    description: "一整页不同动作的小精灵，适合手账、信封与随身小物。",
+    spec: "A6 贴纸页 / 单张",
+    material: "哑面防水贴纸",
+    kind: "sticker",
+    tags: ["贴纸页", "小精灵", "手账"],
   },
 };
 
-const cartStorageKey = "zhongzhong-shop-cart-v2";
+const cartStorageKey = "zhongzhong-shop-cart-v3";
 const cartButton = document.querySelector("#cartButton");
+const cartFlatItems = document.querySelector("#cartFlatItems");
 const cartClose = document.querySelector("#cartClose");
 const cartDrawer = document.querySelector("#cartDrawer");
 const cartBackdrop = document.querySelector("#cartBackdrop");
@@ -178,14 +268,18 @@ const productDetailPrice = document.querySelector("#productDetailPrice");
 const productDetailStatus = document.querySelector("#productDetailStatus");
 const productDetailImage = document.querySelector("#productDetailImage");
 const productDetailBackImage = document.querySelector("#productDetailBackImage");
+const productDepthImages = document.querySelectorAll(".product-model-depth img");
 const productDetailDescription = document.querySelector("#productDetailDescription");
 const productDetailSpec = document.querySelector("#productDetailSpec");
 const productDetailMaterial = document.querySelector("#productDetailMaterial");
+const productDetailTags = document.querySelector("#productDetailTags");
 const productPixelTurntable = document.querySelector("#productPixelTurntable");
 const productModelStage = document.querySelector("#productModelStage");
+const productTurntableAnchor = document.querySelector(".product-turntable-anchor");
 const marketDoor = document.querySelector("#marketDoor");
 const marketRegister = document.querySelector("#marketRegister");
 const marketRegisterItem = document.querySelector("#marketRegisterItem");
+const marketRegisterTotal = document.querySelector("#marketRegisterTotal");
 const marketRegisterStatus = document.querySelector("#marketRegisterStatus");
 let statusTimer;
 let detailStatusTimer;
@@ -198,6 +292,8 @@ let rotationLastTime = 0;
 let rotationPointerId = null;
 let rotationStartX = 0;
 let rotationStartAngle = 0;
+let rotationManual = false;
+let rotationResumeTimer;
 let checkoutPending = false;
 let checkoutScanning = false;
 let checkoutReceiptReady = false;
@@ -227,6 +323,31 @@ const saveCart = () => {
   localStorage.setItem(cartStorageKey, JSON.stringify(cart));
 };
 
+const syncProductDetailCartState = (productId = activeProductId, announce = false) => {
+  if (!productDetailAdd || !productId || !shopCatalog[productId]) return;
+
+  const quantity = cart[productId] || 0;
+  productDetailAdd.textContent = quantity ? "再放一件" : "放进购物车";
+  productDetailAdd.dataset.cartQuantity = String(quantity);
+  productDetailAdd.setAttribute(
+    "aria-label",
+    quantity
+      ? `再添加一件${shopCatalog[productId].name}，购物车里已有${quantity}件`
+      : `将${shopCatalog[productId].name}放进购物车`,
+  );
+
+  if (
+    productDetailStatus
+    && (announce || activeProductId === productId)
+  ) {
+    productDetailStatus.textContent = quantity
+      ? announce
+        ? `已放入，车中 ${quantity} 件`
+        : `车中 ${quantity} 件`
+      : "";
+  }
+};
+
 const createQuantityButton = (label, symbol, productId, action) => {
   const button = document.createElement("button");
   button.type = "button";
@@ -235,6 +356,74 @@ const createQuantityButton = (label, symbol, productId, action) => {
   button.dataset.cartAction = action;
   button.textContent = symbol;
   return button;
+};
+
+const renderCartFlatItems = (entries) => {
+  if (!cartFlatItems) return;
+
+  const cartSlots = [
+    [33, 34, -8],
+    [45, 33, 5],
+    [57, 34, -3],
+    [69, 35, 7],
+    [35, 45, 6],
+    [47, 44, -7],
+    [59, 45, 4],
+    [71, 46, -4],
+    [43, 54, -6],
+    [57, 54, 5],
+  ];
+  const visualItems = entries.flatMap(([productId, quantity]) =>
+    Array.from({ length: Math.min(quantity, 6) }, () => productId),
+  ).slice(0, cartSlots.length);
+
+  const occurrences = new Map();
+  const desiredItems = visualItems.map((productId) => {
+    const occurrence = occurrences.get(productId) || 0;
+    occurrences.set(productId, occurrence + 1);
+    return {
+      productId,
+      key: `${productId}:${occurrence}`,
+    };
+  });
+  const existingItems = new Map(
+    Array.from(cartFlatItems.querySelectorAll("img[data-cart-visual-key]")).map((image) => [
+      image.dataset.cartVisualKey,
+      image,
+    ]),
+  );
+
+  desiredItems.forEach(({ productId, key }, index) => {
+    const product = shopCatalog[productId];
+    if (!product) return;
+    const [x, y, rotation] = cartSlots[index];
+    let image = existingItems.get(key);
+
+    if (image) {
+      existingItems.delete(key);
+    } else {
+      image = document.createElement("img");
+      image.src = product.image;
+      image.alt = "";
+      image.dataset.productId = productId;
+      image.dataset.cartVisualKey = key;
+      image.setAttribute("aria-hidden", "true");
+      image.classList.add("is-entering");
+      image.addEventListener(
+        "animationend",
+        () => image.classList.remove("is-entering"),
+        { once: true },
+      );
+    }
+
+    image.style.setProperty("--cart-item-index", String(index));
+    image.style.setProperty("--cart-item-x", `${x}%`);
+    image.style.setProperty("--cart-item-y", `${y}%`);
+    image.style.setProperty("--cart-item-rotation", `${rotation}deg`);
+    cartFlatItems.append(image);
+  });
+
+  existingItems.forEach((image) => image.remove());
 };
 
 const renderCart = () => {
@@ -247,10 +436,36 @@ const renderCart = () => {
     (total, [productId, quantity]) => total + shopCatalog[productId].price * quantity,
     0,
   );
+  renderCartFlatItems(entries);
+  cartButton?.classList.toggle("is-empty", totalQuantity === 0);
+  cartButton?.classList.toggle("is-full", totalQuantity >= 8);
+  if (cartButton) {
+    cartButton.dataset.fill = String(Math.min(totalQuantity, 12));
+    cartButton.setAttribute(
+      "aria-label",
+      totalQuantity
+        ? `打开购物车，当前 ${totalQuantity} 件商品`
+        : "打开空购物车",
+    );
+  }
   cartCount.value = totalQuantity ? String(totalQuantity) : "";
   cartCount.textContent = totalQuantity ? String(totalQuantity) : "";
   cartCount.hidden = totalQuantity === 0;
   if (cartTotal) cartTotal.textContent = formatPrice(totalPrice);
+  if (marketRegisterTotal) {
+    marketRegisterTotal.value = formatPrice(totalPrice);
+    marketRegisterTotal.textContent = formatPrice(totalPrice);
+  }
+  if (marketRegister) {
+    marketRegister.classList.toggle("has-cart", totalQuantity > 0);
+    marketRegister.dataset.total = String(totalPrice);
+    marketRegister.setAttribute(
+      "aria-label",
+      totalQuantity
+        ? `在收银台扫描 ${totalQuantity} 件商品，当前合计 ${formatPrice(totalPrice)}`
+        : "空购物车，先挑选商品",
+    );
+  }
   if (checkoutButton) {
     checkoutButton.disabled = !entries.length || checkoutPending || checkoutScanning;
     checkoutButton.textContent = checkoutScanning
@@ -261,6 +476,7 @@ const renderCart = () => {
           ? "确认并前往支付宝"
           : "扫描商品并结算";
   }
+  syncProductDetailCartState();
 
   if (!entries.length) {
     const emptyMessage = document.createElement("p");
@@ -355,7 +571,7 @@ const clearCheckoutReceipt = () => {
   if (checkoutReceipt) checkoutReceipt.hidden = true;
   if (checkoutDelivery) checkoutDelivery.hidden = true;
   if (checkoutScanImage) {
-    checkoutScanImage.src = "";
+    checkoutScanImage.removeAttribute("src");
     checkoutScanImage.alt = "";
   }
   if (checkoutScanStatus) checkoutScanStatus.textContent = "";
@@ -364,7 +580,7 @@ const clearCheckoutReceipt = () => {
   if (checkoutReceiptTotal) checkoutReceiptTotal.textContent = "";
   marketRegister?.classList.remove("is-scanning", "is-complete");
   if (marketRegisterItem) {
-    marketRegisterItem.src = "";
+    marketRegisterItem.removeAttribute("src");
     marketRegisterItem.alt = "";
   }
   if (marketRegisterStatus) marketRegisterStatus.textContent = "点击收银";
@@ -487,8 +703,6 @@ const startCheckoutScan = async ({ openOnComplete = false } = {}) => {
 };
 
 const announceAdded = (product) => {
-  showShopMessage(`${product.name} 已放入购物车`);
-
   if (cartButton) {
     cartButton.classList.remove("is-bumped");
     window.requestAnimationFrame(() => {
@@ -498,15 +712,108 @@ const announceAdded = (product) => {
   }
 };
 
+const flyProductToCart = (productId) =>
+  new Promise((resolve) => {
+  const product = shopCatalog[productId];
+  if (!product || !cartButton || reduceMotion.matches) {
+    resolve();
+    return;
+  }
+
+  const sourceImage = document.body.classList.contains("product-detail-open")
+    ? productDetailImage
+    : document.querySelector(`[data-view-product="${CSS.escape(productId)}"] img`);
+  if (!(sourceImage instanceof HTMLImageElement)) {
+    resolve();
+    return;
+  }
+
+  const from = sourceImage.getBoundingClientRect();
+  const to = cartButton.getBoundingClientRect();
+  const flyer = document.createElement("img");
+  flyer.className = "cart-fly-item";
+  flyer.src = product.image;
+  flyer.alt = "";
+  flyer.style.left = `${from.left}px`;
+  flyer.style.top = `${from.top}px`;
+  flyer.style.width = `${from.width}px`;
+  flyer.style.height = `${from.height}px`;
+  document.body.append(flyer);
+
+  const targetX = to.left + to.width * 0.54 - (from.left + from.width / 2);
+  const targetY = to.top + to.height * 0.42 - (from.top + from.height / 2);
+  const flight = flyer.animate(
+    [
+      { opacity: 0.95, transform: "translate(0, 0) scale(1)" },
+      {
+        opacity: 0.86,
+        transform: `translate(${targetX * 0.56}px, ${targetY * 0.44 - 42}px) scale(0.72)`,
+        offset: 0.58,
+      },
+      {
+        opacity: 0,
+        transform: `translate(${targetX}px, ${targetY}px) scale(0.2)`,
+      },
+    ],
+    {
+      duration: 620,
+      easing: "cubic-bezier(0.18, 0.82, 0.24, 1)",
+    },
+  );
+  const finishFlight = () => {
+    flyer.remove();
+    resolve();
+  };
+  flight.addEventListener("finish", finishFlight, { once: true });
+  flight.addEventListener("cancel", finishFlight, { once: true });
+});
+
 const renderProductRotation = () => {
-  productPixelTurntable?.style.setProperty(
+  if (!productPixelTurntable) return;
+  const normalizedRotation = ((productRotation % 360) + 360) % 360;
+  const showingBack = normalizedRotation > 90 && normalizedRotation < 270;
+  productPixelTurntable.style.setProperty(
     "--product-rotation",
     `${productRotation}deg`,
   );
+  productPixelTurntable.dataset.side = showingBack ? "back" : "front";
+  if (activeProductId && shopCatalog[activeProductId]) {
+    productPixelTurntable.setAttribute(
+      "aria-label",
+      `${shopCatalog[activeProductId].name}，当前展示${showingBack ? "背面细节" : "正面样品"}`,
+    );
+  }
+};
+
+const fitProductTurntable = () => {
+  if (
+    !productDetailImage ||
+    !productModelStage ||
+    !productTurntableAnchor ||
+    !productDetailImage.naturalWidth ||
+    !productDetailImage.naturalHeight
+  ) {
+    return;
+  }
+
+  const stageRect = productModelStage.getBoundingClientRect();
+  if (!stageRect.width || !stageRect.height) return;
+
+  const ratio =
+    productDetailImage.naturalWidth / productDetailImage.naturalHeight;
+  const maxWidth = Math.min(stageRect.width * 0.78, 520);
+  const maxHeight = Math.min(stageRect.height * 0.78, 460);
+  const width = Math.min(maxWidth, maxHeight * ratio);
+  const height = width / ratio;
+
+  productTurntableAnchor.style.width = `${Math.max(width, 72)}px`;
+  productTurntableAnchor.style.height = `${Math.max(height, 72)}px`;
+  productTurntableAnchor.style.setProperty("--product-object-aspect", String(ratio));
 };
 
 const stopProductRotation = () => {
   window.cancelAnimationFrame(rotationFrame);
+  window.clearTimeout(rotationResumeTimer);
   rotationFrame = 0;
   rotationLastTime = 0;
 };
@@ -517,8 +824,13 @@ const runProductRotation = (time) => {
     return;
   }
 
-  if (rotationLastTime && rotationPointerId === null && !reduceMotion.matches) {
-    productRotation += Math.min(time - rotationLastTime, 40) * 0.012;
+  if (
+    rotationLastTime
+    && rotationPointerId === null
+    && !rotationManual
+    && !reduceMotion.matches
+  ) {
+    productRotation += Math.min(time - rotationLastTime, 40) * 0.024;
     renderProductRotation();
   }
 
@@ -528,8 +840,11 @@ const runProductRotation = (time) => {
 
 const startProductRotation = () => {
   stopProductRotation();
-  productRotation = 0;
+  productRotation = -18;
+  rotationManual = false;
   renderProductRotation();
+  rotationLastTime = performance.now();
+  rotationFrame = window.requestAnimationFrame(runProductRotation);
 };
 
 const openProductDetail = (productId, trigger) => {
@@ -557,7 +872,11 @@ const openProductDetail = (productId, trigger) => {
   }
   if (productDetailBackImage) {
     productDetailBackImage.src = product.image;
+    productDetailBackImage.alt = "";
   }
+  productDepthImages.forEach((image) => {
+    image.src = product.image;
+  });
   if (productDetailDescription) {
     productDetailDescription.textContent = product.description;
   }
@@ -567,15 +886,40 @@ const openProductDetail = (productId, trigger) => {
   if (productDetailMaterial) {
     productDetailMaterial.textContent = product.material;
   }
+  if (productDetailTags) {
+    productDetailTags.replaceChildren(
+      ...(product.tags || []).map((tag, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = tag;
+        button.className = index === 0 ? "is-selected" : "";
+        button.setAttribute("aria-pressed", index === 0 ? "true" : "false");
+        button.addEventListener("click", () => {
+          productDetailTags.querySelectorAll("button").forEach((candidate) => {
+            const selected = candidate === button;
+            candidate.classList.toggle("is-selected", selected);
+            candidate.setAttribute("aria-pressed", String(selected));
+          });
+        });
+        return button;
+      }),
+    );
+  }
   if (productModelStage) {
     productModelStage.dataset.productKind = product.kind || "merch";
+    productModelStage.dataset.productBack = product.back || "image";
+    productModelStage.dataset.productDepth = product.depth || "flat";
+    productModelStage.style.setProperty(
+      "--product-back-inset",
+      product.image.includes("/shop-products/") ? "5.2%" : "0%",
+    );
   }
   productPixelTurntable?.setAttribute(
     "aria-label",
-    `${product.name}，拖动、左右滑动或使用方向键旋转`,
+    `${product.name}，当前展示正面样品`,
   );
   productDetailAdd.dataset.addToCart = productId;
-  productDetailStatus.textContent = "";
+  syncProductDetailCartState(productId);
 
   productDetailModal.hidden = false;
   productDetailBackdrop.hidden = false;
@@ -585,6 +929,7 @@ const openProductDetail = (productId, trigger) => {
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
       document.body.classList.add("product-detail-open");
+      fitProductTurntable();
       startProductRotation();
       productDetailClose?.focus();
     });
@@ -609,7 +954,7 @@ const closeProductDetail = () => {
   lastProductTrigger?.focus();
 };
 
-const addProductToCart = (productId) => {
+const addProductToCart = async (productId) => {
   const product = shopCatalog[productId];
   if (!product) return;
   clearCheckoutReceipt();
@@ -617,15 +962,9 @@ const addProductToCart = (productId) => {
   saveCart();
   setPaymentStatus("");
   renderCart();
+  syncProductDetailCartState(productId, true);
   announceAdded(product);
-
-  if (productDetailStatus && activeProductId === productId) {
-    window.clearTimeout(detailStatusTimer);
-    productDetailStatus.textContent = "已放入购物车";
-    detailStatusTimer = window.setTimeout(() => {
-      productDetailStatus.textContent = "";
-    }, 1800);
-  }
+  void flyProductToCart(productId);
 };
 
 const openCartAfterProduct = () => {
@@ -644,7 +983,6 @@ const toggleMarketDoor = () => {
     nextOpen ? "关闭植物冰柜" : "打开植物冰柜",
   );
   marketDoor.classList.toggle("is-open", nextOpen);
-  showShopMessage(nextOpen ? "植物冰柜已打开" : "植物冰柜已关闭");
 };
 
 const scanAtMarketRegister = () => {
@@ -846,6 +1184,18 @@ cartItems?.addEventListener("click", (event) => {
   saveCart();
   setPaymentStatus("");
   renderCart();
+  const nextButton = cartItems.querySelector(
+    `[data-product-id="${CSS.escape(productId)}"][data-cart-action="${action}"]`,
+  );
+  nextButton?.focus();
+});
+
+window.addEventListener("storage", (event) => {
+  if (event.key !== cartStorageKey) return;
+  cart = readCart();
+  clearCheckoutReceipt();
+  setPaymentStatus("");
+  renderCart();
 });
 
 cartButton?.addEventListener("click", openCart);
@@ -867,6 +1217,7 @@ productDetailBackdrop?.addEventListener("click", closeProductDetail);
 productPixelTurntable?.addEventListener("pointerdown", (event) => {
   if (event.pointerType === "mouse" && event.button !== 0) return;
   rotationPointerId = event.pointerId;
+  rotationManual = true;
   rotationStartX = event.clientX;
   rotationStartAngle = productRotation;
   productPixelTurntable.classList.add("is-dragging");
@@ -887,6 +1238,11 @@ const finishProductDrag = (event) => {
   }
   rotationPointerId = null;
   rotationLastTime = performance.now();
+  window.clearTimeout(rotationResumeTimer);
+  rotationResumeTimer = window.setTimeout(() => {
+    rotationManual = false;
+    rotationLastTime = performance.now();
+  }, 1200);
 };
 
 productPixelTurntable?.addEventListener("pointerup", finishProductDrag);
@@ -895,9 +1251,22 @@ productPixelTurntable?.addEventListener("pointercancel", finishProductDrag);
 productPixelTurntable?.addEventListener("keydown", (event) => {
   if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
   event.preventDefault();
+  rotationManual = true;
   productRotation += event.key === "ArrowLeft" ? -24 : 24;
   renderProductRotation();
   rotationLastTime = performance.now();
+  window.clearTimeout(rotationResumeTimer);
+  rotationResumeTimer = window.setTimeout(() => {
+    rotationManual = false;
+    rotationLastTime = performance.now();
+  }, 1200);
+});
+
+productDetailImage?.addEventListener("load", fitProductTurntable);
+window.addEventListener("resize", () => {
+  if (document.body.classList.contains("product-detail-open")) {
+    fitProductTurntable();
+  }
 });
 
 document.addEventListener("keydown", (event) => {

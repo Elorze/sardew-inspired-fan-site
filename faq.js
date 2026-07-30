@@ -1,91 +1,32 @@
-const faqReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const faqDetails = [...document.querySelectorAll(".faq-question-list details")];
+const faqSubmitAfter = document.querySelector("#faqSubmitAfter");
+const faqOpenedQuestions = new Set();
 
-faqDetails.forEach((details) => {
+const revealFaqSubmit = () => {
+  if (!faqSubmitAfter || !faqSubmitAfter.hidden) return;
+  faqSubmitAfter.hidden = false;
+  window.requestAnimationFrame(() => {
+    faqSubmitAfter.classList.add("is-visible");
+  });
+};
+
+faqDetails.forEach((details, index) => {
   const summary = details.querySelector("summary");
-  const answer = details.querySelector(".faq-answer-copy");
-  if (!summary || !answer) return;
+  if (!summary) return;
 
-  const syncExpandedState = () => {
+  summary.setAttribute("aria-expanded", String(details.open));
+
+  details.addEventListener("toggle", () => {
     summary.setAttribute("aria-expanded", String(details.open));
-  };
+    if (!details.open) return;
 
-  syncExpandedState();
-  details.addEventListener("toggle", syncExpandedState);
+    faqOpenedQuestions.add(details);
+    faqDetails.forEach((otherDetails) => {
+      if (otherDetails !== details) otherDetails.open = false;
+    });
 
-  summary.addEventListener("click", (event) => {
-    event.preventDefault();
-    if (details.classList.contains("is-animating")) return;
-
-    if (faqReducedMotion.matches) {
-      details.open = !details.open;
-      return;
+    if (faqOpenedQuestions.size === faqDetails.length) {
+      revealFaqSubmit();
     }
-
-    const isClosing = details.open;
-    const startHeight = details.offsetHeight;
-    if (!isClosing) {
-      faqDetails.forEach((otherDetails) => {
-        if (otherDetails === details || !otherDetails.open) return;
-        otherDetails.getAnimations().forEach((animation) => animation.cancel());
-        otherDetails
-          .querySelector(".faq-answer-copy")
-          ?.getAnimations()
-          .forEach((animation) => animation.cancel());
-        otherDetails.classList.remove("is-animating");
-        otherDetails.style.height = "";
-        otherDetails.style.overflow = "";
-        otherDetails.open = false;
-        otherDetails
-          .querySelector("summary")
-          ?.setAttribute("aria-expanded", "false");
-      });
-      details.open = true;
-    }
-    const endHeight = isClosing ? summary.offsetHeight : details.offsetHeight;
-
-    details.classList.add("is-animating");
-    details.style.overflow = "hidden";
-
-    const panelAnimation = details.animate(
-      [
-        { height: `${startHeight}px` },
-        { height: `${endHeight}px` },
-      ],
-      {
-        duration: isClosing ? 210 : 360,
-        easing: "cubic-bezier(0.2, 0.72, 0.18, 1)",
-      },
-    );
-
-    answer.animate(
-      isClosing
-        ? [
-            { opacity: 1, transform: "translateY(0)" },
-            { opacity: 0, transform: "translateY(-7px)" },
-          ]
-        : [
-            { opacity: 0, transform: "translateY(-7px)" },
-            { opacity: 1, transform: "translateY(0)" },
-          ],
-      {
-        duration: isClosing ? 150 : 320,
-        easing: "cubic-bezier(0.2, 0.72, 0.18, 1)",
-        fill: "both",
-      },
-    );
-
-    panelAnimation.addEventListener(
-      "finish",
-      () => {
-        if (isClosing) details.open = false;
-        details.classList.remove("is-animating");
-        details.style.height = "";
-        details.style.overflow = "";
-        answer.getAnimations().forEach((animation) => animation.cancel());
-        syncExpandedState();
-      },
-      { once: true },
-    );
   });
 });

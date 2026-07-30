@@ -50,6 +50,7 @@ const startServer = async ({ port, dataDirectory }) => {
       PUBLIC_BASE_URL: `http://127.0.0.1:${port}`,
       ACCOUNT_USERS_FILE: join(dataDirectory, "users.json"),
       ACCOUNT_STATE_FILE: join(dataDirectory, "account-state.json"),
+      ANALYTICS_DB_FILE: join(dataDirectory, "site-analytics.sqlite"),
       FORUM_GARDEN_FILE: join(dataDirectory, "forum-garden.json"),
       PAYMENT_ORDERS_FILE: join(dataDirectory, "orders.json"),
       CONTENT_SUBMISSIONS_FILE: join(dataDirectory, "submissions.json"),
@@ -109,4 +110,44 @@ test("话语花园按热度排序并持久化采摘热度", async (t) => {
   });
   assert.equal(viewed.response.status, 200);
   assert.equal(viewed.payload.selected.id, "world");
+});
+
+test("社区回复投稿会拒绝乱码广告并接受正常内容", async (t) => {
+  const dataDirectory = await mkdtemp(join(tmpdir(), "zhongzhong-forum-review-"));
+  const port = await findOpenPort();
+  const baseUrl = `http://127.0.0.1:${port}`;
+  const child = await startServer({ port, dataDirectory });
+
+  t.after(async () => {
+    await stopServer(child);
+    await rm(dataDirectory, { recursive: true, force: true });
+  });
+
+  const rejected = await jsonRequest(`${baseUrl}/api/content/submissions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "forum-reply",
+      title: "测试话题",
+      message: "asdfasdfasdf 加微信 http://spam.example",
+      source: "welcome",
+      visibility: "anonymous",
+    }),
+  });
+  assert.equal(rejected.response.status, 422);
+  assert.equal(rejected.payload.code, "MODERATION_REJECTED");
+
+  const accepted = await jsonRequest(`${baseUrl}/api/content/submissions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "forum-reply",
+      title: "测试话题",
+      message: "今天在花园入口看到了新的小路，想继续逛逛。",
+      source: "welcome",
+      visibility: "anonymous",
+    }),
+  });
+  assert.equal(accepted.response.status, 201);
+  assert.equal(accepted.payload.submission.status, "pending");
 });

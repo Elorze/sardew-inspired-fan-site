@@ -11,6 +11,7 @@ const accountEmail = document.querySelector("#siteAccountEmail");
 const accountPassword = document.querySelector("#siteAccountPassword");
 const accountSubmit = document.querySelector("[data-account-submit]");
 const accountSignout = document.querySelector("[data-account-signout]");
+const accountSwitch = document.querySelector("[data-account-switch]");
 const accountSignedOut = document.querySelector("[data-account-signed-out]");
 const accountSignedIn = document.querySelector("[data-account-signed-in]");
 const accountStatus = document.querySelector("[data-account-status]");
@@ -19,6 +20,10 @@ const accountAvatars = document.querySelectorAll("[data-account-avatar]");
 const accountProfileAvatar = document.querySelector(
   "[data-account-profile-avatar]",
 );
+const accountProfileToggle = document.querySelector(
+  "[data-account-profile-toggle]",
+);
+const accountActions = document.querySelector("[data-account-actions]");
 const accountProfileName = document.querySelector("[data-account-profile-name]");
 const accountProfileEmail = document.querySelector(
   "[data-account-profile-email]",
@@ -54,8 +59,15 @@ const dispatchAccountChange = () => {
   );
 };
 
+const setAccountActionsOpen = (open) => {
+  const shouldOpen = Boolean(open && accountSession);
+  if (accountActions) accountActions.hidden = !shouldOpen;
+  accountProfileToggle?.setAttribute("aria-expanded", String(shouldOpen));
+};
+
 const syncAccountView = () => {
   const signedIn = Boolean(accountSession);
+  setAccountActionsOpen(false);
   if (accountSignedOut) accountSignedOut.hidden = signedIn;
   if (accountSignedIn) accountSignedIn.hidden = !signedIn;
 
@@ -82,6 +94,14 @@ const syncAccountView = () => {
   if (accountProfileEmail) {
     accountProfileEmail.textContent = accountSession?.email || "";
   }
+  if (accountProfileToggle) {
+    accountProfileToggle.setAttribute(
+      "aria-label",
+      signedIn
+        ? `打开${accountSession.nickname}的账号操作`
+        : "打开账号操作",
+    );
+  }
 
   dispatchAccountChange();
 };
@@ -93,7 +113,9 @@ const setAccountStatus = (message = "") => {
 const setAccountPending = (pending) => {
   accountPending = pending;
   if (accountSubmit) accountSubmit.disabled = pending;
+  if (accountSwitch) accountSwitch.disabled = pending;
   if (accountSignout) accountSignout.disabled = pending;
+  if (accountProfileToggle) accountProfileToggle.disabled = pending;
 };
 
 const setAccountMode = (mode) => {
@@ -151,6 +173,7 @@ const openAccountDialog = () => {
 
 const closeAccountDialog = () => {
   if (!accountDialog) return;
+  setAccountActionsOpen(false);
   if (typeof accountDialog.close === "function") {
     accountDialog.close();
   } else {
@@ -163,6 +186,12 @@ accountTriggers.forEach((trigger) => {
 });
 
 accountClose?.addEventListener("click", closeAccountDialog);
+
+accountProfileToggle?.addEventListener("click", () => {
+  const open = accountProfileToggle.getAttribute("aria-expanded") !== "true";
+  setAccountActionsOpen(open);
+  if (open) accountSwitch?.focus();
+});
 
 accountDialog?.addEventListener("click", (event) => {
   if (event.target === accountDialog) closeAccountDialog();
@@ -225,6 +254,29 @@ accountForm?.addEventListener("submit", async (event) => {
       window.location.assign(accountReturnTo);
       return;
     }
+  } catch (error) {
+    setAccountStatus(error.message);
+  } finally {
+    setAccountPending(false);
+  }
+});
+
+accountSwitch?.addEventListener("click", async () => {
+  if (accountPending || isFilePreview) return;
+  setAccountPending(true);
+  setAccountStatus("正在切换账号…");
+  try {
+    await requestAccount("/api/auth/logout", {
+      method: "POST",
+      body: "{}",
+    });
+    accountSession = null;
+    setAccountMode("login");
+    syncAccountView();
+    if (accountEmail) accountEmail.value = "";
+    if (accountPassword) accountPassword.value = "";
+    setAccountStatus("");
+    accountEmail?.focus();
   } catch (error) {
     setAccountStatus(error.message);
   } finally {

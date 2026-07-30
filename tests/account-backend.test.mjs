@@ -54,6 +54,7 @@ const startServer = async ({ port, dataDirectory, clientsFile }) => {
       ACCOUNT_USERS_FILE: join(dataDirectory, "users.json"),
       ACCOUNT_STATE_FILE: join(dataDirectory, "account-state.json"),
       ACCOUNT_CLIENTS_FILE: clientsFile,
+      ANALYTICS_DB_FILE: join(dataDirectory, "site-analytics.sqlite"),
       ACCOUNT_ALLOWED_ORIGINS: "http://127.0.0.1:9100",
       NO_PROXY: "127.0.0.1,localhost",
       no_proxy: "127.0.0.1,localhost",
@@ -126,6 +127,16 @@ test("统一账号持久化会话并完成 PKCE 产品授权", async (t) => {
   assert.equal(pointsBeforeCheckIn.response.status, 200);
   assert.equal(pointsBeforeCheckIn.payload.points, 0);
   assert.equal(pointsBeforeCheckIn.payload.checkedInToday, false);
+  assert.equal(pointsBeforeCheckIn.payload.wateredToday, false);
+  assert.equal(pointsBeforeCheckIn.payload.waterCount, 0);
+  assert.deepEqual(pointsBeforeCheckIn.payload.waterAchievement, {
+    id: "morning-dew-gardener",
+    title: "晨露园丁",
+    progress: 0,
+    target: 3,
+    unlocked: false,
+    newlyUnlocked: false,
+  });
 
   const firstCheckIn = await jsonRequest(
     `${baseUrl}/api/auth/forum-check-in`,
@@ -155,12 +166,44 @@ test("统一账号持久化会话并完成 PKCE 产品授权", async (t) => {
   assert.equal(repeatedCheckIn.payload.points, 10);
   assert.equal(repeatedCheckIn.payload.awarded, 0);
 
+  const firstWater = await jsonRequest(
+    `${baseUrl}/api/auth/forum-water`,
+    {
+      method: "POST",
+      cookie,
+      origin: baseUrl,
+      body: "{}",
+    },
+  );
+  assert.equal(firstWater.response.status, 200);
+  assert.equal(firstWater.payload.points, 13);
+  assert.equal(firstWater.payload.awarded, 3);
+  assert.equal(firstWater.payload.wateredToday, true);
+  assert.equal(firstWater.payload.waterCount, 1);
+  assert.equal(firstWater.payload.waterAchievement.progress, 1);
+  assert.equal(firstWater.payload.waterAchievement.target, 3);
+  assert.equal(firstWater.payload.waterAchievement.unlocked, false);
+
+  const repeatedWater = await jsonRequest(
+    `${baseUrl}/api/auth/forum-water`,
+    {
+      method: "POST",
+      cookie,
+      origin: baseUrl,
+      body: "{}",
+    },
+  );
+  assert.equal(repeatedWater.response.status, 200);
+  assert.equal(repeatedWater.payload.points, 13);
+  assert.equal(repeatedWater.payload.awarded, 0);
+  assert.equal(repeatedWater.payload.waterCount, 1);
+
   const sessionBeforeRestart = await jsonRequest(
     `${baseUrl}/api/auth/session`,
     { cookie },
   );
   assert.equal(sessionBeforeRestart.payload.account.email, "backend-test@zhongzhong.local");
-  assert.equal(sessionBeforeRestart.payload.account.points, 10);
+  assert.equal(sessionBeforeRestart.payload.account.points, 13);
 
   await stopServer(child);
   child = await startServer({ port, dataDirectory, clientsFile });
@@ -170,7 +213,7 @@ test("统一账号持久化会话并完成 PKCE 产品授权", async (t) => {
     { cookie },
   );
   assert.equal(sessionAfterRestart.payload.account.nickname, "测试芽");
-  assert.equal(sessionAfterRestart.payload.account.points, 10);
+  assert.equal(sessionAfterRestart.payload.account.points, 13);
 
   const profileUpdate = await jsonRequest(`${baseUrl}/api/auth/profile`, {
     method: "PATCH",

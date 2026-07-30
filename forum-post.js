@@ -1,4 +1,4 @@
-const forumPosts = {
+const fallbackForumPosts = {
   welcome: {
     title: "先从这里认识大家",
     author: "种种",
@@ -58,6 +58,24 @@ const forumPosts = {
     paragraphs: ["分享你喜欢的文创作品与使用照片。"],
   },
 };
+
+const sharedForumPosts = Object.fromEntries(
+  (window.ZhongZhongForumThreads || []).map((thread) => [
+    thread.id,
+    {
+      title: thread.title,
+      author: thread.author,
+      level: thread.level,
+      avatar: thread.avatar,
+      signature: thread.signature,
+      achievement: thread.achievement,
+      datetime: thread.datetime,
+      time: thread.time,
+      paragraphs: thread.paragraphs,
+    },
+  ]),
+);
+const forumPosts = { ...fallbackForumPosts, ...sharedForumPosts };
 
 const requestedPost = new URLSearchParams(window.location.search).get("id");
 const post = forumPosts[requestedPost] || forumPosts.welcome;
@@ -131,6 +149,54 @@ const fallbackForumProfiles = [
   ["new-lilybell.png", "在池塘边等一朵花开", "晨露"],
 ];
 
+const blockedForumPatterns = [
+  /https?:\/\//i,
+  /www\./i,
+  /加\s*(微|v|vx|qq)/i,
+  /私\s*(聊|信)/i,
+  /代\s*(充|刷|练)/i,
+  /广告|推广|返利|兼职|贷款|办证|发票/i,
+  /傻[逼比]|垃圾|滚开|去死|操你|妈的|草泥马/i,
+];
+const keyboardMashPattern = /(?:asdf|qwer|zxcv|hjkl|aaaa|bbbb|testtest|lorem)/i;
+
+const moderateForumReply = (value, { hasSticker = false } = {}) => {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  if (!text) {
+    return hasSticker
+      ? { ok: true, text }
+      : { ok: false, reason: "写点内容或选一个表情。" };
+  }
+
+  const compact = text.replace(/\s+/g, "");
+  const withoutPunctuation = compact.replace(/[^\p{L}\p{N}]/gu, "");
+  const uniqueCharacters = new Set([...withoutPunctuation.toLowerCase()]);
+  const punctuationCount = [...compact].filter((character) =>
+    /[^\p{L}\p{N}]/u.test(character),
+  ).length;
+
+  if ([...withoutPunctuation].length < 4) {
+    return { ok: false, reason: "内容太短了，补一句完整的话再发。" };
+  }
+  if (/(.)\1{5,}/u.test(compact)) {
+    return { ok: false, reason: "重复字符太多，像刷屏内容。" };
+  }
+  if ([...withoutPunctuation].length >= 6 && uniqueCharacters.size < 3) {
+    return { ok: false, reason: "内容辨识度太低，像乱码。" };
+  }
+  if (compact.length >= 8 && punctuationCount / compact.length > 0.55) {
+    return { ok: false, reason: "符号太多，看不清楚想表达什么。" };
+  }
+  if (keyboardMashPattern.test(compact)) {
+    return { ok: false, reason: "内容像键盘乱输，请整理后再发。" };
+  }
+  if (blockedForumPatterns.some((pattern) => pattern.test(text))) {
+    return { ok: false, reason: "这条内容包含广告、外链或不友善表达，暂不通过。" };
+  }
+
+  return { ok: true, text };
+};
+
 const getForumMemberProfile = (reply) => {
   if (reply.avatar) {
     return [
@@ -145,107 +211,6 @@ const getForumMemberProfile = (reply) => {
     return total + character.codePointAt(0);
   }, 0);
   return fallbackForumProfiles[seed % fallbackForumProfiles.length];
-};
-
-const seededForumReplies = {
-  welcome: [
-    {
-      id: "welcome-seed-1",
-      author: "露珠",
-      level: "LV.2 生根",
-      time: "07-28 11:06",
-      text: "收到，已经先去种种世界转了一圈。",
-      sticker: "clover",
-    },
-    {
-      id: "welcome-seed-2",
-      author: "莓果",
-      level: "LV.4 抽枝",
-      time: "07-28 13:42",
-      text: "花园广场终于开门了，来放一颗小芽。",
-      sticker: "sprout",
-    },
-  ],
-  world: [
-    {
-      id: "world-seed-1",
-      author: "露珠",
-      level: "LV.2 生根",
-      time: "今天 08:47",
-      text: "我在花园池塘边发现了新的小花，绕过去的时候还听见了水声。",
-      sticker: "lotus",
-    },
-    {
-      id: "world-seed-2",
-      author: "藤藤",
-      level: "LV.3 展叶",
-      time: "今天 09:03",
-      text: "想知道树屋后面的空地以后会不会开放。",
-      sticker: "clover",
-    },
-    {
-      id: "world-seed-3",
-      author: "小满",
-      level: "LV.5 含苞",
-      time: "今天 09:18",
-      text: "浇水动作很可爱，我在那里停了好一会儿。",
-      sticker: "flying",
-    },
-  ],
-  tavern: [
-    {
-      id: "tavern-seed-1",
-      author: "晚灯",
-      level: "LV.4 抽枝",
-      time: "昨天 22:10",
-      text: "角落那张小桌子很适合听大家聊天。",
-      sticker: "bluebell",
-    },
-    {
-      id: "tavern-seed-2",
-      author: "辛香",
-      level: "LV.6 开花",
-      time: "今天 00:26",
-      text: "下一次还想听三位伙伴继续讲下去。",
-      sticker: "cattail",
-    },
-  ],
-  dandelion: [
-    {
-      id: "dandelion-seed-1",
-      author: "风铃",
-      level: "LV.3 展叶",
-      time: "昨天 21:37",
-      text: "地图东边那条小路很好看，我差点错过入口。",
-      sticker: "flying",
-    },
-    {
-      id: "dandelion-seed-2",
-      author: "团子",
-      level: "LV.2 生根",
-      time: "昨天 23:15",
-      text: "想在地图上多留几个可以停下来的小角落。",
-      sticker: "spiky",
-    },
-  ],
-  creative: [
-    {
-      id: "creative-seed-1",
-      author: "纸叶",
-      level: "LV.5 含苞",
-      time: "昨天 18:24",
-      text: "异形贴纸贴在透明本上会很好看。",
-      sticker: "clover",
-    },
-    {
-      id: "creative-seed-2",
-      author: "花花",
-      level: "LV.6 开花",
-      time: "昨天 20:40",
-      text: "地图贴纸也可以拿来标记旅行路线。",
-      sticker: "lotus",
-    },
-  ],
 };
 
 const activeForumPostId = requestedPost && forumPosts[requestedPost]
@@ -320,6 +285,13 @@ const createForumReply = (reply, isNew = false) => {
   replyTime.textContent = reply.time || "刚刚";
   if (reply.datetime) replyTime.dateTime = reply.datetime;
   meta.append(replyAuthor, replyLevel, replyTime);
+  if (reply.moderationStatus) {
+    const moderation = document.createElement("small");
+    moderation.className = "forum-reply-moderation";
+    moderation.textContent =
+      reply.moderationStatus === "pending" ? "待审核" : "仅本机";
+    meta.append(moderation);
+  }
   content.append(meta);
 
   if (reply.text) {
@@ -352,15 +324,21 @@ const createForumReply = (reply, isNew = false) => {
 const renderForumReplies = (newReplyId = "") => {
   if (!forumReplyList || !forumReplyCount) return;
 
-  const replies = [
-    ...(seededForumReplies[activeForumPostId] || []),
-    ...savedForumReplies,
-  ];
-  forumReplyList.replaceChildren(
-    ...replies.map((reply) => createForumReply(reply, reply.id === newReplyId)),
-  );
+  const replies = [...savedForumReplies];
+  if (replies.length) {
+    forumReplyList.replaceChildren(
+      ...replies.map((reply) => createForumReply(reply, reply.id === newReplyId)),
+    );
+  } else {
+    const empty = document.createElement("p");
+    empty.className = "forum-reply-empty";
+    empty.textContent = "还没有公开回复，欢迎留下第一条。";
+    forumReplyList.replaceChildren(empty);
+  }
   forumReplyCount.value = String(replies.length);
-  forumReplyCount.textContent = `${replies.length} 条`;
+  forumReplyCount.textContent = replies.length
+    ? `${replies.length} 条`
+    : "等待第一条";
 };
 
 const updateSelectedForumSticker = (stickerId = "") => {
@@ -457,6 +435,15 @@ forumReplyForm?.addEventListener("submit", async (event) => {
     return;
   }
 
+  const moderation = moderateForumReply(message, {
+    hasSticker: Boolean(selectedForumSticker),
+  });
+  if (!moderation.ok) {
+    if (forumReplyStatus) forumReplyStatus.textContent = moderation.reason;
+    forumReplyMessage?.focus();
+    return;
+  }
+
   const now = new Date();
   const publicAuthor = visibility === "real" && session ? session.nickname : "匿名来访者";
   const reply = {
@@ -474,6 +461,8 @@ forumReplyForm?.addEventListener("submit", async (event) => {
           "今天也在花园里慢慢生长"
         : "匿名留在花园里的纸条",
     achievement: visibility === "real" ? "新芽" : "匿名",
+    moderationStatus:
+      window.location.protocol === "file:" ? "local" : "pending",
   };
 
   if (window.location.protocol !== "file:") {
@@ -516,7 +505,12 @@ forumReplyForm?.addEventListener("submit", async (event) => {
   updateSelectedForumSticker("");
   if (forumStickerPicker) forumStickerPicker.hidden = true;
   forumStickerToggle?.setAttribute("aria-expanded", "false");
-  if (forumReplyStatus) forumReplyStatus.textContent = "回复已发送";
+  if (forumReplyStatus) {
+    forumReplyStatus.textContent =
+      reply.moderationStatus === "pending"
+        ? "已提交，审核后会公开"
+        : "已保存在当前设备";
+  }
   forumReplyList?.lastElementChild?.scrollIntoView({
     behavior: "smooth",
     block: "center",

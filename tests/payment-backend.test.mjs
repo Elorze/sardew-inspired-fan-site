@@ -43,7 +43,7 @@ const waitForServer = async (baseUrl, child) => {
 };
 
 test("服务端按完整商品目录计价并校验收货信息", () => {
-  assert.equal(Object.keys(paymentCatalog).length, 14);
+  assert.equal(Object.keys(paymentCatalog).length, 20);
   const items = normalizePaymentCart([
     { productId: "merch-04", quantity: 2, price: 0.01 },
     { productId: "merch-14", quantity: 1, price: 9999 },
@@ -59,6 +59,10 @@ test("服务端按完整商品目录计价并校验收货信息", () => {
       { productId: "merch-14", quantity: 1, unitPriceInCents: 1200 },
     ],
   );
+  assert.equal(paymentCatalog["merch-15"].priceInCents, 6800);
+  assert.equal(paymentCatalog["merch-16"].priceInCents, 2400);
+  assert.equal(paymentCatalog["merch-17"].priceInCents, 3200);
+  assert.equal(paymentCatalog["merch-20"].priceInCents, 2000);
   assert.throws(
     () => normalizePaymentCart([{ productId: "unknown", quantity: 1 }]),
     /INVALID_CART/,
@@ -114,6 +118,7 @@ test("没有商户密钥时后端拒绝创建真实订单", async (t) => {
       ACCOUNT_ISSUER: baseUrl,
       ACCOUNT_USERS_FILE: join(dataDirectory, "users.json"),
       ACCOUNT_STATE_FILE: join(dataDirectory, "account-state.json"),
+      ANALYTICS_DB_FILE: join(dataDirectory, "site-analytics.sqlite"),
       PAYMENT_ORDERS_FILE: join(dataDirectory, "orders.json"),
       ALIPAY_APP_ID: "",
       ALIPAY_PRIVATE_KEY: "",

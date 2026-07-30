@@ -6,8 +6,8 @@
     <meta name="description" content="种种邮箱，收取开发日记与创作来信，也可以写信给种种。" />
     <title>种种邮箱｜种种大世界</title>
     <link rel="icon" type="image/png" href="assets/favicon.png" />
-    <link rel="stylesheet" href="styles.css?v=20260729-blog-mailbox" />
-    <link rel="stylesheet" href="blog-mailbox.css?v=20260730-content-api" />
+    <link rel="stylesheet" href="styles.css?v=20260731-social-alignment" />
+    <link rel="stylesheet" href="blog-mailbox.css?v=20260730-honest-mailbox" />
   </head>
   <body class="mailbox-page" data-page="blog.html">
     <div data-site-header></div>
@@ -15,15 +15,38 @@
     <main class="mailbox-main">
       <section class="mailbox-shell" aria-label="种种邮箱">
         <header class="mailbox-toolbar">
-          <h1>来信</h1>
+          <h1 class="visually-hidden">种种信箱</h1>
 
           <div class="mailbox-actions">
-            <button class="mailbox-action receive-mail-button" type="button">
+            <button class="mailbox-action receive-mail-button" type="button" aria-pressed="true">
+              <img
+                class="mailbox-action-icon"
+                src="assets/mail-icon-inbox-pixel-blue-v2.png"
+                alt=""
+                width="128"
+                height="128"
+              />
               <span>收信</span>
-              <output aria-label="未读来信">3</output>
             </button>
             <button class="mailbox-action compose-mail-button" type="button" aria-pressed="false">
+              <img
+                class="mailbox-action-icon"
+                src="assets/mail-icon-compose-pixel-blue-v3.png"
+                alt=""
+                width="128"
+                height="128"
+              />
               <span>写信</span>
+            </button>
+            <button class="mailbox-action send-mail-entry-button" type="button" aria-pressed="false">
+              <img
+                class="mailbox-action-icon"
+                src="assets/mail-icon-send-pixel-blue-v3.png"
+                alt=""
+                width="128"
+                height="128"
+              />
+              <span>寄信</span>
             </button>
           </div>
           <p class="visually-hidden mailbox-live-status" aria-live="polite"></p>
@@ -32,23 +55,20 @@
         <div class="mailbox-workspace">
           <nav class="mail-inbox" aria-label="来信">
             <div class="mail-list">
-              <button class="mail-list-item is-active is-unread" type="button" data-mail-id="devlog" aria-pressed="true">
-                <span class="mail-unread-dot" aria-label="未读"></span>
-                <img class="mail-list-avatar" src="assets/home-watered-spirit-alpha-v1.png" alt="" />
+              <button class="mail-list-item is-active" type="button" data-mail-id="devlog" aria-pressed="true">
+                <img class="mail-list-avatar" src="assets/forum-avatars/new-clover.png" alt="" />
                 <span class="mail-list-title">把三扇门安到同一条路上</span>
                 <time class="mail-list-date" datetime="2026-07-28">07.28</time>
               </button>
 
-              <button class="mail-list-item is-unread" type="button" data-mail-id="manuscript" aria-pressed="false">
-                <span class="mail-unread-dot" aria-label="未读"></span>
-                <img class="mail-list-avatar" src="assets/home-depth-companions-side-alpha-v1.png" alt="" />
+              <button class="mail-list-item" type="button" data-mail-id="manuscript" aria-pressed="false">
+                <img class="mail-list-avatar" src="assets/forum-avatars/new-dandelion.png" alt="" />
                 <span class="mail-list-title">蒲公英地图又长出一条小路</span>
                 <time class="mail-list-date" datetime="2026-07-27">07.27</time>
               </button>
 
-              <button class="mail-list-item is-unread" type="button" data-mail-id="npc" aria-pressed="false">
-                <span class="mail-unread-dot" aria-label="未读"></span>
-                <img class="mail-list-avatar" src="assets/wiki-potted-sprout.png" alt="" />
+              <button class="mail-list-item" type="button" data-mail-id="npc" aria-pressed="false">
+                <img class="mail-list-avatar" src="assets/forum-avatars/new-bluebell.png" alt="" />
                 <span class="mail-list-title">今天，三位新朋友开口了</span>
                 <time class="mail-list-date" datetime="2026-07-26">07.26</time>
               </button>
@@ -59,17 +79,26 @@
             <article class="mail-reading-pane is-opening" data-paper="sprout" aria-live="polite">
               <img class="mail-floral-frame" src="assets/blog-floral-frame-v1.png" alt="" aria-hidden="true" />
               <header class="mail-reading-header">
-                <img class="mail-reading-avatar" src="assets/home-watered-spirit-alpha-v1.png" alt="" />
+                <img
+                  class="mail-reading-avatar"
+                  src="assets/forum-avatars/new-clover.png"
+                  alt=""
+                  title="双击放大"
+                />
                 <div>
                   <h2>把三扇门安到同一条路上</h2>
                   <time datetime="2026-07-28">2026.07.28</time>
                   <p class="mail-reading-summary">三个世界的入口重新摆好了。花园更轻，酒馆更暖，蒲公英的路留了一点风。</p>
                 </div>
-                <span class="mail-stamp" aria-hidden="true">种种<br />07·28</span>
+                <span class="mail-stamp" aria-hidden="true">07·28</span>
               </header>
 
               <figure class="mail-attachment">
-                <img src="assets/product-world-thumb.png" alt="种种世界花园全景" />
+                <img
+                  src="assets/product-world-thumb.png"
+                  alt="种种世界花园全景"
+                  title="双击放大"
+                />
               </figure>
 
               <footer class="mail-reading-footer">
@@ -80,7 +109,10 @@
             <form class="mail-compose-pane" data-paper="compose" hidden>
               <img class="mail-floral-frame" src="assets/blog-floral-frame-v1.png" alt="" aria-hidden="true" />
               <header class="mail-compose-header">
-                <h2>写给种种</h2>
+                <div class="mail-compose-title">
+                  <img src="assets/wiki-potted-sprout.png" alt="" />
+                  <h2>写给种种</h2>
+                </div>
                 <button class="mail-compose-close" type="button" aria-label="关闭写信界面">×</button>
               </header>
 
@@ -111,18 +143,27 @@
               <footer class="mail-compose-footer">
                 <span class="mail-send-status" aria-live="polite"></span>
                 <img src="assets/blog-mail-ephemera-v1.png" alt="" aria-hidden="true" />
-                <button class="mail-send-button" type="submit">
-                  盖章<br />寄出
+                <span class="mail-seal-imprint" aria-hidden="true">
+                  种种<br />已寄
+                </span>
+                <button class="mail-send-button" type="submit" aria-label="盖章并寄出">
+                  <img src="assets/mail-icon-send-pixel-blue-v3.png" alt="" />
+                  <span>盖章寄出</span>
                 </button>
               </footer>
             </form>
           </section>
         </div>
       </section>
+
+      <dialog class="mail-image-viewer" aria-label="放大的信件图片">
+        <button class="mail-image-viewer-close" type="button" aria-label="关闭放大图片">×</button>
+        <img src="" alt="" />
+      </dialog>
     </main>
 
     <div data-site-footer></div>
-    <script src="site-shell.js?v=20260729-header-avatar"></script>
-    <script src="blog-mailbox.js?v=20260730-content-api"></script>
+    <script src="site-shell.js?v=20260731-xhs-profile"></script>
+    <script src="blog-mailbox.js?v=20260730-honest-mailbox"></script>
   </body>
 </html>

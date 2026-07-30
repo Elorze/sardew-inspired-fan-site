@@ -9,8 +9,17 @@
     />
     <title>种种大世界</title>
     <link rel="icon" type="image/png" href="assets/favicon.png" />
-    <link rel="stylesheet" href="styles.css?v=20260729-home-depth" />
-    <link rel="stylesheet" href="home-experience.css?v=20260730-text-align" />
+    <link rel="preload" as="image" href="assets/home-depth-background.png" />
+    <link
+      rel="preload"
+      as="image"
+      href="assets/home-watered-spirit-alpha-v1.png"
+    />
+    <link rel="preload" as="image" href="assets/home-sprite-clover.png" />
+    <link rel="preload" as="image" href="assets/home-sprite-flying.png" />
+    <link rel="preload" as="image" href="assets/home-depth-logo-cropped.png" />
+    <link rel="stylesheet" href="styles.css?v=20260731-social-alignment" />
+    <link rel="stylesheet" href="home-experience.css?v=20260731-home-flow-p2" />
   </head>
   <body data-page="index.html">
     <div data-site-header></div>
@@ -26,20 +35,40 @@
               alt=""
             />
           </div>
-          <div class="home-depth-companions-wrap">
+
+          <div class="home-depth-cast">
             <img
-              class="home-depth-companions"
-              src="assets/home-depth-companions-side-alpha-v1.png"
+              class="home-sprite home-sprite-lotus"
+              src="assets/home-sprite-lotus.png"
+              alt=""
+            />
+            <img
+              class="home-sprite home-sprite-cattail"
+              src="assets/home-sprite-cattail.png"
+              alt=""
+            />
+            <img
+              class="home-sprite home-sprite-clover"
+              src="assets/home-sprite-clover.png"
+              alt=""
+            />
+            <img
+              class="home-sprite home-sprite-flying"
+              src="assets/home-sprite-flying.png"
+              alt=""
+            />
+            <img
+              class="home-sprite home-sprite-bluebell"
+              src="assets/home-sprite-bluebell.png"
+              alt=""
+            />
+            <img
+              class="home-sprite home-sprite-dandelion"
+              src="assets/home-sprite-dandelion.png"
               alt=""
             />
           </div>
-          <div class="home-depth-spirit-wrap">
-            <img
-              class="home-depth-spirit"
-              src="assets/home-watered-spirit-alpha-v1.png"
-              alt=""
-            />
-          </div>
+
           <div class="home-depth-logo-wrap">
             <img
               class="home-depth-logo"
@@ -47,23 +76,31 @@
               alt=""
             />
           </div>
+
+          <div class="home-stump-spirit-wrap">
+            <img
+              class="home-stump-composite"
+              src="assets/home-watered-spirit-alpha-v1.png"
+              alt=""
+            />
+          </div>
         </div>
       </section>
 
-      <section class="home-showcase" aria-label="游戏实机画面">
-        <p class="home-color-note home-color-note-top">
-          <span class="home-note-unit">
-            <span>风从花园吹过来，世界正在醒来</span>
-            <small>THE GARDEN IS WAKING</small>
-          </span>
+      <section class="home-landing-intro" aria-label="进入种种大世界">
+        <p>
+          <span>从浇灌一片土地开始</span>
+          <small>Begin by watering a patch of earth.</small>
         </p>
+      </section>
 
+      <section class="home-showcase" aria-label="游戏实机画面">
         <div class="home-dual-showcase">
           <div
             class="home-motion-view"
             role="region"
             aria-roledescription="轮播"
-            aria-label="可手动切换的游戏画面"
+            aria-label="自动播放且可手动切换的游戏画面"
             tabindex="0"
           >
             <div class="home-motion-track" data-active-slide="0">
@@ -120,18 +157,16 @@
         </div>
 
         <p class="home-color-note home-color-note-bottom">
-          <span class="home-note-unit">
-            <span>慢慢走，每次回来都会遇见新的朋友</span>
-            <small>A NEW PATH, A NEW FRIEND</small>
-          </span>
+          <span>慢慢走，每次回来都会遇见新朋友</span>
+          <small>Take your time. New friends will be waiting each time you return.</small>
         </p>
       </section>
     </main>
 
     <div data-site-footer></div>
 
-    <script src="site-shell.js?v=20260729-header-avatar"></script>
+    <script src="site-shell.js?v=20260731-xhs-profile"></script>
     <script src="script.js?v=20260729-home-depth"></script>
-    <script src="home-experience.js?v=20260730-spirit-zone"></script>
+    <script src="home-experience.js?v=20260731-home-flow-p2"></script>
   </body>
 </html>

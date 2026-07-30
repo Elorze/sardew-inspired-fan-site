@@ -12,10 +12,10 @@ const mailboxMessages = {
     ],
     paper: "sprout",
     image: "assets/product-world-thumb.png",
-    avatar: "assets/home-watered-spirit-alpha-v1.png",
+    avatar: "assets/forum-avatars/new-clover.png",
     alt: "种种世界花园全景",
     material: "实机画面 01 · 花园入口",
-    stamp: "种种\n07·28",
+    stamp: "07·28",
     href: "blog-post.html?id=devlog",
   },
   manuscript: {
@@ -31,10 +31,10 @@ const mailboxMessages = {
     ],
     paper: "dandelion",
     image: "assets/product-dandelion-thumb.png",
-    avatar: "assets/home-depth-companions-side-alpha-v1.png",
+    avatar: "assets/forum-avatars/new-dandelion.png",
     alt: "蒲公英大世界地图全景",
     material: "地图手稿 02 · 新路试画",
-    stamp: "蒲公英\n07·27",
+    stamp: "07·27",
     href: "blog-post.html?id=manuscript",
   },
   npc: {
@@ -50,10 +50,10 @@ const mailboxMessages = {
     ],
     paper: "tavern",
     image: "assets/gameplay-tavern.png",
-    avatar: "assets/wiki-potted-sprout.png",
+    avatar: "assets/forum-avatars/new-bluebell.png",
     alt: "种种酒馆的三位伙伴",
     material: "角色记录 03 · 酒馆灯光",
-    stamp: "酒馆\n07·26",
+    stamp: "07·26",
     href: "blog-post.html?id=npc",
   },
 };
@@ -62,10 +62,15 @@ const mailItems = [...document.querySelectorAll(".mail-list-item")];
 const readingPane = document.querySelector(".mail-reading-pane");
 const composePane = document.querySelector(".mail-compose-pane");
 const composeButton = document.querySelector(".compose-mail-button");
+const sendEntryButton = document.querySelector(".send-mail-entry-button");
 const composeClose = document.querySelector(".mail-compose-close");
 const receiveButton = document.querySelector(".receive-mail-button");
 const receiveCount = receiveButton?.querySelector("output");
 const liveStatus = document.querySelector(".mailbox-live-status");
+const mailSendButton = composePane?.querySelector(".mail-send-button");
+const imageViewer = document.querySelector(".mail-image-viewer");
+const imageViewerImage = imageViewer?.querySelector("img");
+const imageViewerClose = imageViewer?.querySelector(".mail-image-viewer-close");
 
 const readingTime = readingPane?.querySelector(".mail-reading-header time");
 const readingTitle = readingPane?.querySelector("h2");
@@ -91,8 +96,33 @@ const showReadingPane = () => {
   window.requestAnimationFrame(() => {
     readingPane.classList.add("is-opening");
   });
+  receiveButton?.setAttribute("aria-pressed", "true");
   composeButton.setAttribute("aria-pressed", "false");
+  sendEntryButton?.setAttribute("aria-pressed", "false");
 };
+
+const showComposePane = (activeButton = composeButton) => {
+  if (!readingPane || !composePane || !composeButton) return;
+  readingPane.hidden = true;
+  composePane.hidden = false;
+  composePane.classList.remove("is-sent");
+  receiveButton?.setAttribute("aria-pressed", "false");
+  composeButton.setAttribute(
+    "aria-pressed",
+    String(activeButton === composeButton),
+  );
+  sendEntryButton?.setAttribute(
+    "aria-pressed",
+    String(activeButton === sendEntryButton),
+  );
+  composePane.classList.remove("is-opening");
+  window.requestAnimationFrame(() => {
+    composePane.classList.add("is-opening");
+    composePane.querySelector('input[name="subject"]')?.focus();
+  });
+};
+
+let renderSequence = 0;
 
 const renderMessage = (messageId) => {
   const message = mailboxMessages[messageId];
@@ -108,25 +138,69 @@ const renderMessage = (messageId) => {
     return;
   }
 
-  readingPane.hidden = true;
-  readingTime.dateTime = message.date;
-  readingTime.textContent = message.displayDate.replaceAll(" 年 ", ".").replace(" 月 ", ".").replace(" 日", "");
-  readingTitle.textContent = message.title;
-  readingPane.dataset.paper = message.paper;
-  readingImage.src = message.image;
-  readingImage.alt = message.alt;
-  if (readingAvatar) {
-    readingAvatar.src = message.avatar;
-    readingAvatar.alt = "";
-  }
-  if (readingSummary) readingSummary.textContent = message.summary;
-  readingStamp.textContent = message.stamp;
-  readingLink.href = message.href;
+  const sequence = ++renderSequence;
+  readingPane.classList.remove("is-opening");
+  readingPane.classList.add("is-closing");
 
-  window.requestAnimationFrame(() => {
+  window.setTimeout(() => {
+    if (sequence !== renderSequence) return;
+    readingTime.dateTime = message.date;
+    readingTime.textContent = message.displayDate
+      .replaceAll(" 年 ", ".")
+      .replace(" 月 ", ".")
+      .replace(" 日", "");
+    readingTitle.textContent = message.title;
+    readingPane.dataset.paper = message.paper;
+    readingImage.src = message.image;
+    readingImage.alt = message.alt;
+    if (readingAvatar) {
+      readingAvatar.src = message.avatar;
+      readingAvatar.alt = "";
+    }
+    if (readingSummary) readingSummary.textContent = message.summary;
+    readingStamp.textContent = message.stamp;
+    readingLink.href = message.href;
+    readingPane.classList.remove("is-closing");
     showReadingPane();
-  });
+  }, 140);
 };
+
+const openImageViewer = (sourceImage) => {
+  if (!imageViewer || !imageViewerImage || !sourceImage) return;
+  imageViewerImage.src = sourceImage.currentSrc || sourceImage.src;
+  imageViewerImage.alt = sourceImage.alt || "放大的信件图片";
+  imageViewer.showModal();
+  window.requestAnimationFrame(() => imageViewer.classList.add("is-visible"));
+};
+
+document
+  .querySelectorAll(".mail-attachment img, .mail-reading-avatar")
+  .forEach((image) => {
+    image.addEventListener("dblclick", () => openImageViewer(image));
+    image.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openImageViewer(image);
+    });
+    image.tabIndex = 0;
+    image.setAttribute("role", "button");
+    image.setAttribute("aria-label", `${image.alt || "信件图片"}，双击放大`);
+  });
+
+const closeImageViewer = () => {
+  if (!imageViewer?.open) return;
+  imageViewer.classList.remove("is-visible");
+  window.setTimeout(() => imageViewer.close(), 180);
+};
+
+imageViewerClose?.addEventListener("click", closeImageViewer);
+imageViewer?.addEventListener("click", (event) => {
+  if (event.target === imageViewer) closeImageViewer();
+});
+imageViewer?.addEventListener("cancel", (event) => {
+  event.preventDefault();
+  closeImageViewer();
+});
 
 mailItems.forEach((item) => {
   item.addEventListener("click", () => {
@@ -147,17 +221,14 @@ mailItems.forEach((item) => {
 composeButton?.addEventListener("click", () => {
   if (!readingPane || !composePane) return;
   const shouldOpen = composePane.hidden;
-  readingPane.hidden = shouldOpen;
-  composePane.hidden = !shouldOpen;
-  composeButton.setAttribute("aria-pressed", String(shouldOpen));
   if (shouldOpen) {
-    composePane.classList.remove("is-opening");
-    window.requestAnimationFrame(() => {
-      composePane.classList.add("is-opening");
-      composePane.querySelector('input[name="subject"]')?.focus();
-    });
+    showComposePane(composeButton);
+  } else {
+    showReadingPane();
   }
 });
+
+sendEntryButton?.addEventListener("click", () => showComposePane(sendEntryButton));
 
 composeClose?.addEventListener("click", showReadingPane);
 
@@ -194,6 +265,7 @@ const playIncomingLetterSound = () => {
 receiveButton?.addEventListener("click", () => {
   if (receiveButton.classList.contains("is-receiving")) return;
 
+  showReadingPane();
   receiveButton.classList.add("is-receiving");
   receiveButton.disabled = true;
   playIncomingLetterSound();
@@ -243,6 +315,7 @@ composePane?.addEventListener("submit", async (event) => {
   }
 
   composePane.classList.add("is-sealing");
+  if (mailSendButton) mailSendButton.disabled = true;
   if (status) status.textContent = "正在盖章，准备寄出……";
   window.setTimeout(async () => {
     try {
@@ -262,11 +335,18 @@ composePane?.addEventListener("submit", async (event) => {
         throw new Error(result.message || "寄出失败，请稍后再试。");
       }
       composePane.reset();
+      composePane.classList.add("is-sent");
       if (status) status.textContent = "已收到，审核后会刊登";
+      window.setTimeout(() => composePane.classList.remove("is-sent"), 2200);
     } catch (error) {
       if (status) status.textContent = error.message;
     } finally {
       composePane.classList.remove("is-sealing");
+      if (mailSendButton) mailSendButton.disabled = false;
     }
   }, 520);
 });
+
+if (new URLSearchParams(window.location.search).get("compose") === "1") {
+  showComposePane(composeButton);
+}

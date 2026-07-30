@@ -4,14 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:shop": "esbuild shop.js --bundle --minify --format=iife --target=es2020 --outfile=shop.bundle.js",
     "dev": "node server.mjs",
     "start": "NODE_ENV=production node server.mjs",
     "test": "node --test tests/*.test.mjs"
   },
   "engines": {
-    "node": ">=18.20.0"
+    "node": ">=22.5.0"
   },
   "dependencies": {
-    "alipay-sdk": "^4.14.0"
+    "alipay-sdk": "^4.14.0",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
   }
 }

@@ -13,6 +13,12 @@ const catalogEntries = {
   "merch-12": ["蒲公英大世界纪念画片", 1500],
   "merch-13": ["窗边种种盆栽", 3600],
   "merch-14": ["浅蓝拼花地砖样片", 1200],
+  "merch-15": ["小精灵手办模型", 6800],
+  "merch-16": ["种种卡套", 2400],
+  "merch-17": ["蓝铃花亚克力挂件", 3200],
+  "merch-18": ["植物观察便签", 1800],
+  "merch-19": ["蓝铃花刺绣章", 2400],
+  "merch-20": ["小精灵贴纸页", 2000],
 };
 
 export const paymentCatalog = Object.freeze(
