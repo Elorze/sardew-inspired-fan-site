@@ -43,7 +43,7 @@ const stopServer = async (child) => {
 };
 
 const startServer = async ({ port, dataDirectory, clientsFile }) => {
-  const child = spawn(process.execPath, ["server.mjs"], {
+  const child = spawn(process.execPath, ["server/server.mjs"], {
     cwd: projectRoot,
     env: {
       ...process.env,

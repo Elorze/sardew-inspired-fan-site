@@ -1,0 +1,70 @@
+/* Shared design system helpers for image handling and future layout tokens. */
+
+:root {
+  --ds-page-gutter: clamp(16px, 4vw, 32px);
+  --ds-page-width: 1120px;
+  --ds-page-width-wide: 1200px;
+  --ds-border-thin: 1px;
+  --ds-border-standard: 2px;
+  --ds-border-strong: 3px;
+  --ds-border-frame: 4px;
+  --ds-shadow-soft: 0 10px 26px rgba(43, 33, 22, 0.12);
+  --ds-shadow-hard: 4px 4px 0 rgba(43, 33, 22, 0.18);
+}
+
+.ds-page-shell {
+  width: min(var(--ds-page-width), calc(100% - (var(--ds-page-gutter) * 2)));
+  margin-inline: auto;
+}
+
+.ds-page-shell-wide {
+  width: min(
+    var(--ds-page-width-wide),
+    calc(100% - (var(--ds-page-gutter) * 2))
+  );
+  margin-inline: auto;
+}
+
+.ds-media-cover,
+img.ds-media-cover {
+  object-fit: cover;
+}
+
+.ds-media-contain,
+img.ds-media-contain {
+  object-fit: contain;
+}
+
+.ds-pixel,
+img.ds-pixel {
+  image-rendering: pixelated;
+}
+
+.ds-smooth,
+img.ds-smooth {
+  image-rendering: auto;
+}
+
+.ds-frame-thin {
+  border-width: var(--ds-border-thin);
+}
+
+.ds-frame-standard {
+  border-width: var(--ds-border-standard);
+}
+
+.ds-frame-strong {
+  border-width: var(--ds-border-strong);
+}
+
+.ds-frame-heavy {
+  border-width: var(--ds-border-frame);
+}
+
+.ds-shadow-soft {
+  box-shadow: var(--ds-shadow-soft);
+}
+
+.ds-shadow-hard {
+  box-shadow: var(--ds-shadow-hard);
+}

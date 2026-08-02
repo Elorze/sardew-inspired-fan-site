@@ -61,7 +61,7 @@ test("页面浏览与踩踩写入 SQLite 并按访客去重", async (t) => {
   const dataDirectory = await mkdtemp(join(tmpdir(), "zhongzhong-analytics-"));
   const port = await findOpenPort();
   const baseUrl = `http://127.0.0.1:${port}`;
-  const child = spawn(process.execPath, ["server.mjs"], {
+  const child = spawn(process.execPath, ["server/server.mjs"], {
     cwd: projectRoot,
     env: {
       ...process.env,

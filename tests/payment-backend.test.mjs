@@ -12,7 +12,7 @@ import {
   normalizeDelivery,
   normalizePaymentCart,
   paymentCatalog,
-} from "../payment-service.mjs";
+} from "../server/payment-service.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 
@@ -108,7 +108,7 @@ test("没有商户密钥时后端拒绝创建真实订单", async (t) => {
   const dataDirectory = await mkdtemp(join(tmpdir(), "zhongzhong-payment-"));
   const port = await findOpenPort();
   const baseUrl = `http://127.0.0.1:${port}`;
-  const child = spawn(process.execPath, ["server.mjs"], {
+  const child = spawn(process.execPath, ["server/server.mjs"], {
     cwd: projectRoot,
     env: {
       ...process.env,
