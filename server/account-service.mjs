@@ -9,6 +9,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { promisify } from "node:util";
+import { createRemoteAccountService } from "./remote-account-service.mjs";
 
 const scryptAsync = promisify(scrypt);
 const sessionCookieName = "zz_account_session";
@@ -281,6 +282,7 @@ export const createAccountService = async ({
 
   const clients = await loadClients(clientsFile);
   const clientsById = new Map(clients.map((client) => [client.id, client]));
+  const remoteService = createRemoteAccountService();
   const configuredOrigins = new Set(
     String(env.ACCOUNT_ALLOWED_ORIGINS || "")
       .split(",")
@@ -354,6 +356,21 @@ export const createAccountService = async ({
     if (cookieDomain) attributes.push(`Domain=${cookieDomain}`);
     if (secure) attributes.push("Secure");
     return attributes.join("; ");
+  };
+
+  const createLocalUser = (userId, email, nickname) => {
+    const createdAt = nowIso();
+    const user = {
+      id: userId || randomUUID(),
+      email,
+      nickname,
+      level: "LV.1 发芽",
+      status: "active",
+      createdAt,
+      updatedAt: createdAt,
+    };
+    users[user.id] = user;
+    return user;
   };
 
   const findUserByEmail = (email) =>
@@ -486,35 +503,17 @@ export const createAccountService = async ({
       });
       return;
     }
-    if (findUserByEmail(email)) {
-      sendJson(response, 409, {
-        code: "EMAIL_EXISTS",
-        message: "这个邮箱已经注册，可以直接登录。",
+    const result = await remoteService.register({ email, password, nickname });
+    if (!result.ok) {
+      const status = result.error === "SUPABASE_NOT_CONFIGURED" ? 503 : 401;
+      sendJson(response, status, {
+        code: result.error || "AUTH_FAILED",
+        message: result.message || "注册失败。",
       });
       return;
     }
 
-    const passwordRecord = await hashPassword(password);
-    if (findUserByEmail(email)) {
-      sendJson(response, 409, {
-        code: "EMAIL_EXISTS",
-        message: "这个邮箱已经注册，可以直接登录。",
-      });
-      return;
-    }
-
-    const createdAt = nowIso();
-    const user = {
-      id: randomUUID(),
-      email,
-      nickname,
-      level: "LV.1 发芽",
-      status: "active",
-      ...passwordRecord,
-      createdAt,
-      updatedAt: createdAt,
-    };
-    users[user.id] = user;
+    const user = createLocalUser(result.userId, email, nickname);
     await persistUsers();
     await beginBrowserSession(request, user, response);
     sendJson(response, 201, { account: publicAccount(user) });
@@ -543,20 +542,23 @@ export const createAccountService = async ({
 
     const email = normalizeEmail(body.email);
     const password = body.password;
-    const user = findUserByEmail(email);
-    const verified =
-      user &&
-      user.status !== "disabled" &&
-      isValidPassword(password) &&
-      (await verifyPassword(password, user).catch(() => false));
-    if (!verified) {
-      sendJson(response, 401, {
-        code: "INVALID_CREDENTIALS",
-        message: "邮箱或密码不正确。",
+    const nickname = String(body.nickname || "").trim();
+
+    const result = await remoteService.login({ email, password, nickname });
+    if (!result.ok) {
+      const status = result.error === "SUPABASE_NOT_CONFIGURED" ? 503 : 401;
+      sendJson(response, status, {
+        code: result.error || "INVALID_CREDENTIALS",
+        message: result.message || "邮箱或密码不正确。",
       });
       return;
     }
 
+    let user = findUserByEmail(email);
+    if (!user) {
+      user = createLocalUser(result.userId, email, nickname || email.split("@")[0]);
+      await persistUsers();
+    }
     await beginBrowserSession(request, user, response);
     sendJson(response, 200, { account: publicAccount(user) });
   };
@@ -712,9 +714,18 @@ export const createAccountService = async ({
       });
       return;
     }
-    Object.assign(activeSession.user, await hashPassword(nextPassword), {
-      updatedAt: nowIso(),
+    const result = await remoteService.changePassword({
+      userId: activeSession.user.id,
+      newPassword: nextPassword,
     });
+    if (!result.ok) {
+      sendJson(response, 503, {
+        code: result.error || "AUTH_FAILED",
+        message: result.message || "修改密码失败。",
+      });
+      return;
+    }
+    activeSession.user.updatedAt = nowIso();
     await persistUsers();
     await revokeUserCredentials(
       activeSession.user.id,

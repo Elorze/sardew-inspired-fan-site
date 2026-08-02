@@ -134,35 +134,38 @@ export const createAnalyticsService = async ({
     SET heat = heat + 1, updated_at = ?
     WHERE page_key = ?
   `);
-  const readStats = database.prepare(`
-    SELECT
-      page_stats.page_key AS pageKey,
-      page_stats.views AS views,
-      page_stats.heat AS heat,
-      COUNT(page_visitors.visitor_hash) AS visitors
-    FROM page_stats
-    LEFT JOIN page_visitors
-      ON page_visitors.page_key = page_stats.page_key
-    WHERE page_stats.page_key = ?
-    GROUP BY page_stats.page_key
-  `);
-  const readHeat = database.prepare(`
-    SELECT 1 AS heated
-    FROM page_heat
-    WHERE page_key = ? AND visitor_hash = ?
-  `);
-  const readSummary = database.prepare(`
-    SELECT
-      page_stats.page_key AS pageKey,
-      page_stats.views AS views,
-      page_stats.heat AS heat,
-      COUNT(page_visitors.visitor_hash) AS visitors
-    FROM page_stats
-    LEFT JOIN page_visitors
-      ON page_visitors.page_key = page_stats.page_key
-    GROUP BY page_stats.page_key
-    ORDER BY page_stats.views DESC, page_stats.heat DESC, page_stats.page_key ASC
-  `);
+  const readStats = (pageKey) =>
+    database.prepare(`
+      SELECT
+        page_stats.page_key AS pageKey,
+        page_stats.views AS views,
+        page_stats.heat AS heat,
+        COUNT(page_visitors.visitor_hash) AS visitors
+      FROM page_stats
+      LEFT JOIN page_visitors
+        ON page_visitors.page_key = page_stats.page_key
+      WHERE page_stats.page_key = ?
+      GROUP BY page_stats.page_key
+    `).get(pageKey);
+  const readHeat = (pageKey, visitorHashValue) =>
+    database.prepare(`
+      SELECT 1 AS heated
+      FROM page_heat
+      WHERE page_key = ? AND visitor_hash = ?
+    `).get(pageKey, visitorHashValue);
+  const readSummary = () =>
+    database.prepare(`
+      SELECT
+        page_stats.page_key AS pageKey,
+        page_stats.views AS views,
+        page_stats.heat AS heat,
+        COUNT(page_visitors.visitor_hash) AS visitors
+      FROM page_stats
+      LEFT JOIN page_visitors
+        ON page_visitors.page_key = page_stats.page_key
+      GROUP BY page_stats.page_key
+      ORDER BY page_stats.views DESC, page_stats.heat DESC, page_stats.page_key ASC
+    `).all();
 
   const getVisitor = (request, response) => {
     const existing = parseCookies(request)[visitorCookieName];
@@ -182,7 +185,7 @@ export const createAnalyticsService = async ({
   };
 
   const statsFor = (pageKey, hash) => {
-    const stats = readStats.get(pageKey) || {
+    const stats = readStats(pageKey) || {
       pageKey,
       views: 0,
       visitors: 0,
@@ -193,7 +196,7 @@ export const createAnalyticsService = async ({
       views: Number(stats.views),
       visitors: Number(stats.visitors),
       heat: Number(stats.heat),
-      heated: Boolean(hash && readHeat.get(pageKey, hash)),
+      heated: Boolean(hash && readHeat(pageKey, hash)),
     };
   };
 
@@ -239,7 +242,7 @@ export const createAnalyticsService = async ({
   };
 
   const summary = () =>
-    readSummary.all().map((row) => ({
+    readSummary().map((row) => ({
       pageKey: row.pageKey,
       views: Number(row.views),
       visitors: Number(row.visitors),

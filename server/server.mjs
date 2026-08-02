@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomBytes, randomUUID } from "node:crypto";
+import { createClient } from "@supabase/supabase-js";
 import { AlipaySdk } from "alipay-sdk";
 import { createAccountService } from "./account-service.mjs";
 import { createAnalyticsService } from "./analytics-service.mjs";
@@ -14,11 +15,12 @@ import {
   normalizeDelivery,
   normalizePaymentCart,
 } from "./payment-service.mjs";
+import { getSupabaseAdminClient } from "./supabase-client.mjs";
 
 const rootDirectory = dirname(fileURLToPath(import.meta.url));
+const projectRoot = resolve(rootDirectory, "..");
+const publicDirectory = resolve(projectRoot, "public");
 let ordersFile;
-let submissionsFile;
-let forumGardenFile;
 
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
@@ -33,7 +35,7 @@ const mimeTypes = {
 };
 
 const loadEnvFile = () => {
-  const envPath = resolve(rootDirectory, ".env");
+  const envPath = resolve(projectRoot, ".env");
   if (!existsSync(envPath)) return;
 
   const lines = readFileSync(envPath, "utf8").split(/\r?\n/);
@@ -57,22 +59,14 @@ const loadEnvFile = () => {
 loadEnvFile();
 
 const runtimeDataRoot = process.env.RUNTIME_DATA_ROOT?.trim()
-  ? resolve(rootDirectory, process.env.RUNTIME_DATA_ROOT.trim())
+  ? resolve(projectRoot, process.env.RUNTIME_DATA_ROOT.trim())
   : process.env.VERCEL
     ? resolve("/tmp", "zhongzhong-world")
-    : rootDirectory;
+    : projectRoot;
 
 ordersFile = resolve(
   runtimeDataRoot,
   process.env.PAYMENT_ORDERS_FILE || "data/orders.json",
-);
-submissionsFile = resolve(
-  runtimeDataRoot,
-  process.env.CONTENT_SUBMISSIONS_FILE || "data/content-submissions.json",
-);
-forumGardenFile = resolve(
-  runtimeDataRoot,
-  process.env.FORUM_GARDEN_FILE || "data/forum-garden.json",
 );
 
 const port = Number.parseInt(process.env.PORT || "8000", 10);
@@ -91,7 +85,7 @@ const readSecret = (inlineName, pathName) => {
 
   const configuredPath = process.env[pathName]?.trim();
   if (!configuredPath) return "";
-  const absolutePath = resolve(rootDirectory, configuredPath);
+  const absolutePath = resolve(projectRoot, configuredPath);
   return readFileSync(absolutePath, "utf8").trim();
 };
 
@@ -141,21 +135,17 @@ const alipaySdk = isAlipayConfigured
   : null;
 
 const accountService = await createAccountService({
-  rootDirectory,
+  rootDirectory: projectRoot,
   dataDirectory: runtimeDataRoot,
   localBaseUrl: accountBaseUrl,
 });
 const analyticsService = await createAnalyticsService({
-  rootDirectory,
+  rootDirectory: projectRoot,
   dataDirectory: runtimeDataRoot,
 });
 
 let orders = {};
 let persistQueue = Promise.resolve();
-let contentSubmissions = [];
-let persistContentQueue = Promise.resolve();
-let forumGarden = {};
-let persistForumGardenQueue = Promise.resolve();
 const createOrderAttempts = new Map();
 
 const defaultForumGarden = {
@@ -206,6 +196,47 @@ const defaultForumGarden = {
   },
 };
 
+const seedForumGarden = async () => {
+  try {
+    const supabase = getSupabaseAdminClient();
+    const rows = Object.values(defaultForumGarden).map((phrase) => ({
+      id: phrase.id,
+      post_id: phrase.postId,
+      text: phrase.text,
+      speaker: phrase.speaker,
+      avatar: phrase.avatar,
+      heat: 0,
+      picks: 0,
+    }));
+    const { error } = await supabase
+      .from("zz_forum_garden_phrases")
+      .upsert(rows, { onConflict: "id" });
+    if (error) throw error;
+  } catch (error) {
+    console.error(`初始化话语花园失败：${error.message}`);
+  }
+};
+
+const loadForumGarden = async () => {
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("zz_forum_garden_phrases")
+      .select("*");
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    if (error.message === "SUPABASE_NOT_CONFIGURED") {
+      console.error("话语花园：等待 Supabase 配置");
+    } else {
+      console.error(`读取话语花园失败：${error.message}`);
+    }
+    return [];
+  }
+};
+
+await seedForumGarden();
+
 const loadOrders = async () => {
   try {
     const savedOrders = JSON.parse(await readFile(ordersFile, "utf8"));
@@ -223,57 +254,6 @@ const loadOrders = async () => {
 
 await loadOrders();
 
-const loadContentSubmissions = async () => {
-  try {
-    const savedSubmissions = JSON.parse(await readFile(submissionsFile, "utf8"));
-    contentSubmissions = Array.isArray(savedSubmissions) ? savedSubmissions : [];
-  } catch (error) {
-    if (error.code !== "ENOENT") {
-      console.error(`读取投稿记录失败：${error.message}`);
-    }
-    contentSubmissions = [];
-  }
-};
-
-await loadContentSubmissions();
-
-const normalizeForumGarden = (value) => {
-  const source =
-    value && typeof value === "object" && !Array.isArray(value) ? value : {};
-  return Object.fromEntries(
-    Object.entries(defaultForumGarden).map(([id, fallback]) => {
-      const saved = source[id] && typeof source[id] === "object" ? source[id] : {};
-      return [
-        id,
-        {
-          ...fallback,
-          heat: Number.isSafeInteger(saved.heat) && saved.heat >= 0
-            ? saved.heat
-            : fallback.heat,
-          picks: Number.isSafeInteger(saved.picks) && saved.picks >= 0
-            ? saved.picks
-            : fallback.picks,
-        },
-      ];
-    }),
-  );
-};
-
-const loadForumGarden = async () => {
-  try {
-    forumGarden = normalizeForumGarden(
-      JSON.parse(await readFile(forumGardenFile, "utf8")),
-    );
-  } catch (error) {
-    if (error.code !== "ENOENT") {
-      console.error(`读取话语花园失败：${error.message}`);
-    }
-    forumGarden = normalizeForumGarden({});
-  }
-};
-
-await loadForumGarden();
-
 const persistOrders = () => {
   persistQueue = persistQueue
     .then(async () => {
@@ -288,53 +268,33 @@ const persistOrders = () => {
   return persistQueue;
 };
 
-const persistContentSubmissions = () => {
-  persistContentQueue = persistContentQueue
-    .then(async () => {
-      await mkdir(dirname(submissionsFile), { recursive: true });
-      const temporaryFile = `${submissionsFile}.tmp`;
-      await writeFile(
-        temporaryFile,
-        JSON.stringify(contentSubmissions, null, 2),
-        "utf8",
-      );
-      await rename(temporaryFile, submissionsFile);
-    })
-    .catch((error) => {
-      console.error(`保存投稿记录失败：${error.message}`);
-    });
-  return persistContentQueue;
-};
+const mapGardenRow = (row) => ({
+  id: row.id,
+  postId: row.post_id,
+  text: row.text,
+  speaker: row.speaker,
+  avatar: row.avatar,
+  heat: row.heat,
+  picks: row.picks,
+});
 
-const persistForumGarden = () => {
-  persistForumGardenQueue = persistForumGardenQueue
-    .then(async () => {
-      await mkdir(dirname(forumGardenFile), { recursive: true });
-      const temporaryFile = `${forumGardenFile}.tmp`;
-      await writeFile(temporaryFile, JSON.stringify(forumGarden, null, 2), "utf8");
-      await rename(temporaryFile, forumGardenFile);
-    })
-    .catch((error) => {
-      console.error(`保存话语花园失败：${error.message}`);
-    });
-  return persistForumGardenQueue;
-};
-
-const publicForumGarden = () =>
-  Object.values(forumGarden).sort((first, second) => {
+const publicForumGarden = async () => {
+  const rows = await loadForumGarden();
+  return rows.map(mapGardenRow).sort((first, second) => {
     if (second.heat !== first.heat) return second.heat - first.heat;
     return second.picks - first.picks;
   });
+};
 
-const sendForumGarden = (response, selected = null) => {
+const sendForumGarden = async (response, selected = null) => {
   sendJson(response, 200, {
-    phrases: publicForumGarden(),
+    phrases: await publicForumGarden(),
     selected,
   });
 };
 
 const pickForumGardenPhrase = async (response) => {
-  const phrases = publicForumGarden();
+  const phrases = await publicForumGarden();
   const totalWeight = phrases.reduce(
     (total, phrase) => total + Math.max(1, phrase.heat),
     0,
@@ -346,25 +306,46 @@ const pickForumGardenPhrase = async (response) => {
       return cursor <= 0;
     }) || phrases[0];
   if (picked) {
-    forumGarden[picked.id].heat += 1;
-    forumGarden[picked.id].picks += 1;
-    await persistForumGarden();
+    try {
+      const supabase = getSupabaseAdminClient();
+      const { error } = await supabase.rpc("increment_garden_heat", {
+        phrase_id: picked.id,
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error(`更新话语花园热度失败：${error.message}`);
+    }
   }
   sendForumGarden(response, picked || null);
 };
 
 const viewForumGardenPhrase = async (id, response) => {
-  const phrase = forumGarden[id];
-  if (!phrase) {
-    sendJson(response, 404, {
-      code: "FORUM_GARDEN_NOT_FOUND",
-      message: "没有找到这朵话语。",
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("zz_forum_garden_phrases")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error || !data) {
+      sendJson(response, 404, {
+        code: "FORUM_GARDEN_NOT_FOUND",
+        message: "没有找到这朵话语。",
+      });
+      return;
+    }
+    const { error: updateError } = await supabase.rpc("increment_garden_heat", {
+      phrase_id: id,
     });
-    return;
+    if (updateError) throw updateError;
+    sendForumGarden(response, mapGardenRow(data));
+  } catch (error) {
+    console.error(`查看话语花园失败：${error.message}`);
+    sendJson(response, 500, {
+      code: "INTERNAL_ERROR",
+      message: "服务暂时不可用。",
+    });
   }
-  phrase.heat += 1;
-  await persistForumGarden();
-  sendForumGarden(response, phrase);
 };
 
 const normalizeSubmissionType = (value) => {
@@ -430,32 +411,45 @@ const createContentSubmission = async (request, response) => {
 
   const now = new Date().toISOString();
   const submission = {
-    id: randomUUID(),
     type,
     status: "pending",
     visibility,
-    publicAuthor:
+    public_author:
       visibility === "real" && account ? account.nickname : "匿名来信",
-    accountId: account?.id || null,
-    accountEmail: account?.email || null,
+    account_id: account?.id || null,
+    account_email: account?.email || null,
     title,
     message,
     source,
-    createdAt: now,
-    updatedAt: now,
   };
 
-  contentSubmissions.unshift(submission);
-  await persistContentSubmissions();
-
-  sendJson(response, 201, {
-    submission: {
-      id: submission.id,
-      status: submission.status,
-      publicAuthor: submission.publicAuthor,
-      createdAt: submission.createdAt,
-    },
-  });
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("zz_content_submissions")
+      .insert({
+        ...submission,
+        created_at: now,
+        updated_at: now,
+      })
+      .select("id, status, public_author, created_at")
+      .single();
+    if (error) throw error;
+    sendJson(response, 201, {
+      submission: {
+        id: data.id,
+        status: data.status,
+        publicAuthor: data.public_author,
+        createdAt: data.created_at,
+      },
+    });
+  } catch (error) {
+    console.error(`创建投稿失败：${error.message}`);
+    sendJson(response, 500, {
+      code: "INTERNAL_ERROR",
+      message: "服务暂时不可用。",
+    });
+  }
 };
 
 const sendJson = (response, statusCode, payload) => {
@@ -801,8 +795,8 @@ const serveStaticFile = async (url, response) => {
     return;
   }
 
-  const filePath = resolve(rootDirectory, `.${pathname}`);
-  if (!filePath.startsWith(`${rootDirectory}${sep}`)) {
+  const filePath = resolve(publicDirectory, `.${pathname}`);
+  if (!filePath.startsWith(`${publicDirectory}${sep}`)) {
     sendText(response, 403, "Forbidden");
     return;
   }
@@ -910,7 +904,7 @@ const server = createServer(async (request, response) => {
     }
 
     if (request.method === "GET" && url.pathname === "/api/forum/garden") {
-      sendForumGarden(response);
+      await sendForumGarden(response);
       return;
     }
 
