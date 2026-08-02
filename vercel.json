@@ -1,8 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "functions": {
-    "server/server.mjs": {
-      "includeFiles": "public/**"
-    }
-  }
+  "buildCommand": "npm run build:shop",
+  "outputDirectory": "public",
+  "framework": null,
+  "cleanUrls": true
 }

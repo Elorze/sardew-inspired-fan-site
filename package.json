@@ -6,7 +6,7 @@
   "scripts": {
     "build:shop": "esbuild public/shop.js --bundle --minify --format=iife --target=es2020 --outfile=public/shop.bundle.js",
     "dev": "node server/server.mjs",
-    "start": "NODE_ENV=production node server/server.mjs",
+    "start": "node server/server.mjs",
     "test": "echo \"No tests configured\" && exit 0"
   },
   "engines": {
