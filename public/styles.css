@@ -6192,10 +6192,11 @@ body[data-page="shop.html"] .site-footer {
   background: #d8eeea;
 }
 
-/* Static homepage hero: one complete image, no cutout layers or scroll effects. */
+/* Homepage stage: the layered hero owns the full viewport below the header. */
 body[data-page="index.html"] .home-hero {
   position: relative;
-  height: clamp(500px, calc(100svh - 120px), 620px);
+  width: 100%;
+  height: clamp(690px, 102svh, 860px);
   min-height: 0;
   overflow: hidden;
   padding: 0;
