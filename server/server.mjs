@@ -147,6 +147,17 @@ const analyticsService = await createAnalyticsService({
 let orders = {};
 let persistQueue = Promise.resolve();
 const createOrderAttempts = new Map();
+const forumMutationAttempts = new Map();
+
+const isForumRateLimited = (request, action, limit = 10) => {
+  const address = request.socket.remoteAddress || "local";
+  const key = `${action}:${address}`;
+  const now = Date.now();
+  const recent = (forumMutationAttempts.get(key) || []).filter((time) => now - time < 60_000);
+  recent.push(now);
+  forumMutationAttempts.set(key, recent);
+  return recent.length > limit;
+};
 
 const defaultForumGarden = {
   welcome: {
@@ -353,6 +364,429 @@ const normalizeSubmissionType = (value) => {
   return ["blog-letter", "forum-reply", "faq-question"].includes(type)
     ? type
     : "";
+};
+
+const mapForumAuthor = (user) => ({
+  id: user?.id || null,
+  name: user?.display_name || user?.name || "无名旅人",
+});
+
+const mapForumPost = (row) => ({
+  id: row.id,
+  categoryId: row.category_id,
+  title: row.title,
+  body: row.body,
+  status: row.status,
+  isPinned: row.is_pinned,
+  isLocked: row.is_locked,
+  replyCount: row.reply_count,
+  likeCount: row.like_count,
+  likedByMe: Boolean(row.liked_by_me),
+  lastRepliedAt: row.last_replied_at,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  author: mapForumAuthor(row.author),
+});
+
+const mapForumReply = (row) => ({
+  id: row.id,
+  postId: row.post_id,
+  parentId: row.parent_id,
+  body: row.body,
+  status: row.status,
+  likeCount: row.like_count,
+  likedByMe: Boolean(row.liked_by_me),
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  author: mapForumAuthor(row.author),
+});
+
+const forumUserId = (request) => accountService.getBrowserAccount(request)?.id || null;
+
+const applyForumLike = async (request, response, targetType, targetId, shouldLike) => {
+  const account = requireForumAccount(request, response);
+  if (!account) return;
+  const supabase = getSupabaseAdminClient();
+  const table = targetType === "post" ? "zz_forum_post_likes" : "zz_forum_reply_likes";
+  const key = targetType === "post" ? "post_id" : "reply_id";
+  const countTable = targetType === "post" ? "zz_forum_posts" : "zz_forum_replies";
+  const { error } = shouldLike
+    ? await supabase.from(table).upsert({ [key]: targetId, user_id: account.id }, { onConflict: `${key},user_id` })
+    : await supabase.from(table).delete().eq(key, targetId).eq("user_id", account.id);
+  if (error) throw error;
+  const { count, error: countError } = await supabase.from(table).select(key, { count: "exact", head: true }).eq(key, targetId);
+  if (countError) throw countError;
+  const { error: updateError } = await supabase.from(countTable).update({ like_count: count || 0 }).eq("id", targetId);
+  if (updateError) throw updateError;
+  sendJson(response, 200, { liked: shouldLike, likeCount: count || 0 });
+};
+
+const createForumReport = async (request, response, targetType, targetId) => {
+  const account = requireForumAccount(request, response);
+  if (!account) return;
+  let body;
+  try { body = await parseJsonBody(request); } catch { sendJson(response, 400, { code: "INVALID_JSON", message: "举报信息格式不正确。" }); return; }
+  const reason = sanitizeText(body.reason, 500);
+  if (!reason) { sendJson(response, 400, { code: "INVALID_REPORT", message: "请填写举报原因。" }); return; }
+  const supabase = getSupabaseAdminClient();
+  const payload = { reporter_id: account.id, reason, ...(targetType === "post" ? { post_id: targetId } : { reply_id: targetId }) };
+  const { error } = await supabase.from("zz_forum_reports").insert(payload);
+  if (error) throw error;
+  sendJson(response, 201, { reported: true });
+};
+
+const sendForumCategories = async (response) => {
+  const supabase = getSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("zz_forum_categories")
+    .select("id, slug, name, description, icon, sort_order")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+  if (error) throw error;
+  sendJson(response, 200, { categories: data || [] });
+};
+
+const sendForumPosts = async (url, response) => {
+  const page = Math.max(1, Number.parseInt(url.searchParams.get("page") || "1", 10) || 1);
+  const pageSize = Math.min(50, Math.max(1, Number.parseInt(url.searchParams.get("pageSize") || "20", 10) || 20));
+  const category = String(url.searchParams.get("category") || "").trim();
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const supabase = getSupabaseAdminClient();
+  let query = supabase
+    .from("zz_forum_posts")
+    .select("*, author:users!zz_forum_posts_author_id_fkey(id, name, display_name)", { count: "exact" })
+    .eq("status", "published");
+  if (category) query = query.eq("category_id", category);
+  const { data, error, count } = await query
+    .order("is_pinned", { ascending: false })
+    .order("last_replied_at", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false })
+    .range(from, to);
+  if (error) throw error;
+  sendJson(response, 200, {
+    items: (data || []).map(mapForumPost),
+    page,
+    pageSize,
+    total: count || 0,
+  });
+};
+
+const applyForumLikeV2 = async (request, response, kind, targetId, shouldLike) =>{
+  const account = requireForumAccount(request, response);
+  if (!account) return;
+  const supabase = getSupabaseAdminClient();
+  const table = kind === "post" ? "zz_forum_post_likes" : "zz_forum_reply_likes";
+  const targetColumn = kind === "post" ? "post_id" : "reply_id";
+  const countTable = kind === "post" ? "zz_forum_posts" : "zz_forum_replies";
+  if (shouldLike) {
+    const { error } = await supabase.from(table).upsert({ [targetColumn]: targetId, user_id: account.id }, { onConflict: `${targetColumn},user_id` });
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from(table).delete().eq(targetColumn, targetId).eq("user_id", account.id);
+    if (error) throw error;
+  }
+  const { count, error: countError } = await supabase.from(table).select(targetColumn, { count: "exact", head: true }).eq(targetColumn, targetId);
+  if (countError) throw countError;
+  const { error: updateError } = await supabase.from(countTable).update({ like_count: count || 0 }).eq("id", targetId);
+  if (updateError) throw updateError;
+  sendJson(response, 200, { liked: shouldLike, likeCount: count || 0 });
+};
+
+const createForumReportV2 = async (request, response, kind, targetId) =>{
+  const account = requireForumAccount(request, response);
+  if (!account) return;
+  let body;
+  try { body = await parseJsonBody(request); } catch { sendJson(response, 400, { code: "INVALID_JSON", message: "举报格式不正确。" }); return; }
+  const reason = sanitizeText(body.reason, 500);
+  if (!reason) { sendJson(response, 400, { code: "INVALID_REPORT", message: "请填写举报原因。" }); return; }
+  const supabase = getSupabaseAdminClient();
+  const payload = { reporter_id: account.id, reason, [kind === "post" ? "post_id" : "reply_id"]: targetId };
+  const { data, error } = await supabase.from("zz_forum_reports").insert(payload).select("id, status, created_at").single();
+  if (error) throw error;
+  sendJson(response, 201, { report: data });
+};
+
+const requireForumAccount = (request, response) => {
+  const account = accountService.getBrowserAccount(request);
+  if (account) return account;
+  sendJson(response, 401, {
+    code: "LOGIN_REQUIRED",
+    message: "请先登录后再参与社区。",
+  });
+  return null;
+};
+
+const createForumPost = async (request, response) => {
+  if (isForumRateLimited(request, "post", 5)) { sendJson(response, 429, { code: "TOO_MANY_FORUM_REQUESTS", message: "发帖太频繁，请稍后再试。" }); return; }
+  const account = requireForumAccount(request, response);
+  if (!account) return;
+
+  let body;
+  try {
+    body = await parseJsonBody(request);
+  } catch (error) {
+    sendJson(response, error.message === "REQUEST_TOO_LARGE" ? 413 : 400, {
+      code: error.message,
+      message: "帖子内容格式不正确。",
+    });
+    return;
+  }
+
+  const categoryId = String(body.categoryId || "").trim();
+  const title = sanitizeText(body.title, 120);
+  const content = sanitizeText(body.body, 20000);
+  if (!categoryId || !title || !content) {
+    sendJson(response, 400, {
+      code: "INVALID_FORUM_POST",
+      message: "请填写分区、标题和正文。",
+    });
+    return;
+  }
+
+  const moderation = moderateForumReply(content, { hasSticker: false });
+  if (!moderation.ok) {
+    sendJson(response, 422, {
+      code: "MODERATION_REJECTED",
+      message: moderation.reason,
+    });
+    return;
+  }
+
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { data: category, error: categoryError } = await supabase
+      .from("zz_forum_categories")
+      .select("id")
+      .eq("id", categoryId)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (categoryError) throw categoryError;
+    if (!category) {
+      sendJson(response, 400, {
+        code: "INVALID_FORUM_CATEGORY",
+        message: "这个社区分区不存在。",
+      });
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("zz_forum_posts")
+      .insert({ category_id: categoryId, author_id: account.id, title, body: content })
+      .select("*, author:users!zz_forum_posts_author_id_fkey(id, name, display_name)")
+      .single();
+    if (error) throw error;
+    sendJson(response, 201, { post: mapForumPost(data) });
+  } catch (error) {
+    console.error(`创建社区帖子失败：${error.message}`);
+    sendJson(response, 500, {
+      code: "INTERNAL_ERROR",
+      message: "帖子暂时无法发布。",
+    });
+  }
+};
+
+const createForumReply = async (postId, request, response) => {
+  if (isForumRateLimited(request, "reply", 20)) { sendJson(response, 429, { code: "TOO_MANY_FORUM_REQUESTS", message: "回复太频繁，请稍后再试。" }); return; }
+  const account = requireForumAccount(request, response);
+  if (!account) return;
+
+  let body;
+  try {
+    body = await parseJsonBody(request);
+  } catch (error) {
+    sendJson(response, error.message === "REQUEST_TOO_LARGE" ? 413 : 400, {
+      code: error.message,
+      message: "回复内容格式不正确。",
+    });
+    return;
+  }
+
+  const content = sanitizeText(body.body, 20000);
+  const parentId = String(body.parentId || "").trim() || null;
+  if (!content) {
+    sendJson(response, 400, {
+      code: "INVALID_FORUM_REPLY",
+      message: "请输入回复内容。",
+    });
+    return;
+  }
+  const moderation = moderateForumReply(content, { hasSticker: false });
+  if (!moderation.ok) {
+    sendJson(response, 422, {
+      code: "MODERATION_REJECTED",
+      message: moderation.reason,
+    });
+    return;
+  }
+
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { data: post, error: postError } = await supabase
+      .from("zz_forum_posts")
+      .select("id, is_locked, status")
+      .eq("id", postId)
+      .maybeSingle();
+    if (postError) throw postError;
+    if (!post || post.status !== "published") {
+      sendJson(response, 404, { code: "FORUM_POST_NOT_FOUND", message: "没有找到这篇帖子。" });
+      return;
+    }
+    if (post.is_locked) {
+      sendJson(response, 409, { code: "FORUM_POST_LOCKED", message: "这篇帖子已经锁定，暂时不能回复。" });
+      return;
+    }
+    if (parentId) {
+      const { data: parent, error: parentError } = await supabase
+        .from("zz_forum_replies")
+        .select("id")
+        .eq("id", parentId)
+        .eq("post_id", postId)
+        .eq("status", "published")
+        .maybeSingle();
+      if (parentError) throw parentError;
+      if (!parent) {
+        sendJson(response, 400, { code: "INVALID_PARENT_REPLY", message: "引用的回复不存在。" });
+        return;
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("zz_forum_replies")
+      .insert({ post_id: postId, author_id: account.id, parent_id: parentId, body: content })
+      .select("*, author:users!zz_forum_replies_author_id_fkey(id, name, display_name)")
+      .single();
+    if (error) throw error;
+
+    const { count, error: countError } = await supabase
+      .from("zz_forum_replies")
+      .select("id", { count: "exact", head: true })
+      .eq("post_id", postId)
+      .eq("status", "published");
+    if (countError) throw countError;
+    const { error: updateError } = await supabase
+      .from("zz_forum_posts")
+      .update({ reply_count: count || 0, last_replied_at: data.created_at, updated_at: data.created_at })
+      .eq("id", postId);
+    if (updateError) throw updateError;
+
+    sendJson(response, 201, { reply: mapForumReply(data) });
+  } catch (error) {
+    console.error(`创建社区回复失败：${error.message}`);
+    sendJson(response, 500, {
+      code: "INTERNAL_ERROR",
+      message: "回复暂时无法发布。",
+    });
+  }
+};
+
+const requireForumAdmin = async (request, response) => {
+  const account = requireForumAccount(request, response);
+  if (!account) return null;
+  const supabase = getSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("admin_users")
+    .select("user_id, role")
+    .eq("user_id", account.id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) {
+    sendJson(response, 403, { code: "ADMIN_REQUIRED", message: "需要管理员权限。" });
+    return null;
+  }
+  return { account, role: data.role };
+};
+
+const updateForumPost = async (postId, request, response) => {
+  const account = requireForumAccount(request, response);
+  if (!account) return;
+  let body;
+  try { body = await parseJsonBody(request); } catch { sendJson(response, 400, { code: "INVALID_JSON", message: "请求格式不正确。" }); return; }
+  const updates = {};
+  if (body.title !== undefined) updates.title = sanitizeText(body.title, 120);
+  if (body.body !== undefined) updates.body = sanitizeText(body.body, 20000);
+  if (!updates.title && !updates.body) { sendJson(response, 400, { code: "INVALID_FORUM_POST", message: "没有可更新的内容。" }); return; }
+  const supabase = getSupabaseAdminClient();
+  const { data: post, error: postError } = await supabase.from("zz_forum_posts").select("author_id").eq("id", postId).maybeSingle();
+  if (postError) throw postError;
+  if (!post) { sendJson(response, 404, { code: "FORUM_POST_NOT_FOUND", message: "没有找到这篇帖子。" }); return; }
+  if (post.author_id !== account.id) { sendJson(response, 403, { code: "FORUM_AUTHOR_REQUIRED", message: "只能修改自己的帖子。" }); return; }
+  updates.updated_at = new Date().toISOString();
+  const { data, error } = await supabase.from("zz_forum_posts").update(updates).eq("id", postId).select("*, author:users!zz_forum_posts_author_id_fkey(id, name, display_name)").single();
+  if (error) throw error;
+  sendJson(response, 200, { post: mapForumPost(data) });
+};
+
+const deleteForumPost = async (postId, request, response) => {
+  const account = requireForumAccount(request, response);
+  if (!account) return;
+  const supabase = getSupabaseAdminClient();
+  const { data: post, error } = await supabase.from("zz_forum_posts").select("author_id").eq("id", postId).maybeSingle();
+  if (error) throw error;
+  if (!post) { sendJson(response, 404, { code: "FORUM_POST_NOT_FOUND", message: "没有找到这篇帖子。" }); return; }
+  if (post.author_id !== account.id) { sendJson(response, 403, { code: "FORUM_AUTHOR_REQUIRED", message: "只能删除自己的帖子。" }); return; }
+  const { error: updateError } = await supabase.from("zz_forum_posts").update({ status: "deleted", deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", postId);
+  if (updateError) throw updateError;
+  sendJson(response, 200, { deleted: true });
+};
+
+const deleteForumReply = async (replyId, request, response) => {
+  const account = requireForumAccount(request, response);
+  if (!account) return;
+  const supabase = getSupabaseAdminClient();
+  const { data: reply, error } = await supabase.from("zz_forum_replies").select("author_id, post_id").eq("id", replyId).maybeSingle();
+  if (error) throw error;
+  if (!reply) { sendJson(response, 404, { code: "FORUM_REPLY_NOT_FOUND", message: "没有找到这条回复。" }); return; }
+  if (reply.author_id !== account.id) { sendJson(response, 403, { code: "FORUM_AUTHOR_REQUIRED", message: "只能删除自己的回复。" }); return; }
+  const now = new Date().toISOString();
+  const { error: updateError } = await supabase.from("zz_forum_replies").update({ status: "deleted", deleted_at: now, updated_at: now }).eq("id", replyId);
+  if (updateError) throw updateError;
+  const { count } = await supabase.from("zz_forum_replies").select("id", { count: "exact", head: true }).eq("post_id", reply.post_id).eq("status", "published");
+  await supabase.from("zz_forum_posts").update({ reply_count: count || 0, updated_at: now }).eq("id", reply.post_id);
+  sendJson(response, 200, { deleted: true });
+};
+
+const updateForumAdmin = async (kind, targetId, request, response) => {
+  if (!await requireForumAdmin(request, response)) return;
+  let body;
+  try { body = await parseJsonBody(request); } catch { sendJson(response, 400, { code: "INVALID_JSON", message: "请求格式不正确。" }); return; }
+  const updates = {};
+  if (kind === "post") {
+    for (const field of ["is_pinned", "is_locked"]) if (typeof body[field] === "boolean") updates[field] = body[field];
+    if (["published", "hidden", "deleted"].includes(body.status)) updates.status = body.status;
+    if (!Object.keys(updates).length) { sendJson(response, 400, { code: "INVALID_ADMIN_UPDATE", message: "没有可更新的管理状态。" }); return; }
+    updates.updated_at = new Date().toISOString();
+    const { error } = await getSupabaseAdminClient().from("zz_forum_posts").update(updates).eq("id", targetId);
+    if (error) throw error;
+  } else {
+    if (!["published", "hidden", "deleted"].includes(body.status)) { sendJson(response, 400, { code: "INVALID_ADMIN_UPDATE", message: "回复状态不正确。" }); return; }
+    const { error } = await getSupabaseAdminClient().from("zz_forum_replies").update({ status: body.status, updated_at: new Date().toISOString() }).eq("id", targetId);
+    if (error) throw error;
+  }
+  sendJson(response, 200, { updated: true });
+};
+
+const sendForumPost = async (postId, response) => {
+  const supabase = getSupabaseAdminClient();
+  const { data: post, error: postError } = await supabase
+    .from("zz_forum_posts")
+    .select("*, author:users!zz_forum_posts_author_id_fkey(id, name, display_name)")
+    .eq("id", postId)
+    .eq("status", "published")
+    .maybeSingle();
+  if (postError) throw postError;
+  if (!post) {
+    sendJson(response, 404, { code: "FORUM_POST_NOT_FOUND", message: "没有找到这篇帖子。" });
+    return;
+  }
+  const { data: replies, error: replyError } = await supabase
+    .from("zz_forum_replies")
+    .select("*, author:users!zz_forum_replies_author_id_fkey(id, name, display_name)")
+    .eq("post_id", postId)
+    .eq("status", "published")
+    .order("created_at", { ascending: true });
+  if (replyError) throw replyError;
+  sendJson(response, 200, { post: mapForumPost(post), replies: (replies || []).map(mapForumReply) });
 };
 
 const sanitizeText = (value, maxLength) =>
@@ -900,6 +1334,71 @@ const server = createServer(async (request, response) => {
       url.pathname === "/api/content/submissions"
     ) {
       await createContentSubmission(request, response);
+      return;
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/forum/categories") {
+      await sendForumCategories(response);
+      return;
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/forum/posts") {
+      await sendForumPosts(url, response);
+      return;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/forum/posts") {
+      await createForumPost(request, response);
+      return;
+    }
+
+    const forumReplyMatch = url.pathname.match(/^\/api\/forum\/posts\/([a-f0-9-]+)\/replies$/i);
+    if (request.method === "POST" && forumReplyMatch) {
+      await createForumReply(forumReplyMatch[1], request, response);
+      return;
+    }
+
+    const forumAdminPostMatch = url.pathname.match(/^\/api\/forum\/admin\/posts\/([a-f0-9-]+)$/i);
+    if (["PATCH"].includes(request.method) && forumAdminPostMatch) {
+      await updateForumAdmin("post", forumAdminPostMatch[1], request, response);
+      return;
+    }
+    const forumAdminReplyMatch = url.pathname.match(/^\/api\/forum\/admin\/replies\/([a-f0-9-]+)$/i);
+    if (request.method === "PATCH" && forumAdminReplyMatch) {
+      await updateForumAdmin("reply", forumAdminReplyMatch[1], request, response);
+      return;
+    }
+    const forumEditMatch = url.pathname.match(/^\/api\/forum\/posts\/([a-f0-9-]+)$/i);
+    if (request.method === "PATCH" && forumEditMatch) {
+      await updateForumPost(forumEditMatch[1], request, response);
+      return;
+    }
+    const forumDeletePostMatch = url.pathname.match(/^\/api\/forum\/posts\/([a-f0-9-]+)$/i);
+    if (request.method === "DELETE" && forumDeletePostMatch) {
+      await deleteForumPost(forumDeletePostMatch[1], request, response);
+      return;
+    }
+    const forumDeleteReplyMatch = url.pathname.match(/^\/api\/forum\/replies\/([a-f0-9-]+)$/i);
+    if (request.method === "DELETE" && forumDeleteReplyMatch) {
+      await deleteForumReply(forumDeleteReplyMatch[1], request, response);
+      return;
+    }
+
+    const forumLikeMatch = url.pathname.match(/^\/api\/forum\/(posts|replies)\/([a-f0-9-]+)\/like$/i);
+    if (forumLikeMatch && ["POST", "DELETE"].includes(request.method)) {
+      await applyForumLike(request, response, forumLikeMatch[1] === "posts" ? "post" : "reply", forumLikeMatch[2], request.method === "POST");
+      return;
+    }
+
+    const forumReportMatch = url.pathname.match(/^\/api\/forum\/(posts|replies)\/([a-f0-9-]+)\/report$/i);
+    if (request.method === "POST" && forumReportMatch) {
+      await createForumReport(request, response, forumReportMatch[1] === "posts" ? "post" : "reply", forumReportMatch[2]);
+      return;
+    }
+
+    const forumPostMatch = url.pathname.match(/^\/api\/forum\/posts\/([a-f0-9-]+)$/i);
+    if (request.method === "GET" && forumPostMatch) {
+      await sendForumPost(forumPostMatch[1], response);
       return;
     }
 

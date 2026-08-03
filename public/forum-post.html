@@ -32,6 +32,13 @@
           <div class="forum-post-content">
             <div class="forum-post-body" id="forumPostBody"></div>
             <time id="forumPostTime"></time>
+            <div class="forum-post-actions" id="forumPostActions">
+              <button type="button" data-forum-action="like">赞 <span id="forumPostLikeCount">0</span></button>
+              <button type="button" data-forum-action="report">举报</button>
+              <button type="button" data-forum-action="edit" hidden>编辑</button>
+              <button type="button" data-forum-action="delete" hidden>删除</button>
+            </div>
+            <p id="forumPostActionStatus" role="status" aria-live="polite"></p>
           </div>
         </div>
       </article>

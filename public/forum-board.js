@@ -5,8 +5,34 @@ const forumCategories = document.querySelector("#forumCategories");
 const forumPagination = document.querySelector("#forumPagination");
 const forumPageNumbers = document.querySelector("#forumPageNumbers");
 const forumPageStatus = document.querySelector("#forumPageStatus");
-const forumThreads = window.ZhongZhongForumThreads || [];
+let forumThreads = [];
 const forumPageSize = 6;
+
+const loadForumThreads = async () => {
+  if (window.location.protocol === "file:") {
+    forumThreads = window.ZhongZhongForumThreads || [];
+    return;
+  }
+  try {
+    const response = await fetch(`/api/forum/posts?page=1&pageSize=50`, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("forum request failed");
+    const payload = await response.json();
+    forumThreads = (payload.items || []).map((post) => ({
+      id: post.id,
+      category: post.categoryId,
+      title: post.title,
+      author: post.author?.name || "无名旅人",
+      level: "社区成员",
+      avatar: "new-cattail.png",
+      pinned: post.isPinned,
+      updated: post.lastRepliedAt || post.createdAt,
+      datetime: post.lastRepliedAt || post.createdAt,
+      replies: post.replyCount,
+    }));
+  } catch {
+    forumThreads = window.ZhongZhongForumThreads || [];
+  }
+};
 const forumCategoryLabels = {
   all: "全部",
   world: "世界",
@@ -700,6 +726,6 @@ window.ZhongZhongForumPersonalization = {
 
 void requestRewardStatus(window.ZhongZhongForumAuth?.getSession() || null);
 void requestSpeechGarden();
-renderForumBoard();
+loadForumThreads().finally(() => renderForumBoard());
 renderWaterAchievement();
 restoreGuestAvatar();

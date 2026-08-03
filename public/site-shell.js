@@ -1,3 +1,11 @@
+if (!document.querySelector('link[data-navigation-styles]')) {
+  const navigationStyles = document.createElement("link");
+  navigationStyles.rel = "stylesheet";
+  navigationStyles.href = "navigation.css?v=20260802-v2";
+  navigationStyles.dataset.navigationStyles = "";
+  document.head.append(navigationStyles);
+}
+
 const navigationItems = [
   ["index.html", "首页"],
   ["blog.html", "博客"],
@@ -90,6 +98,15 @@ if (headerRoot) {
         <span class="visually-hidden" data-account-label>登录</span>
       </button>
     </header>
+
+    <div class="site-menu-popover" data-site-menu hidden>
+      <div class="site-menu-heading">
+        <span>种种大世界</span>
+        <button type="button" data-menu-close aria-label="关闭菜单">×</button>
+      </div>
+      <nav aria-label="完整网站导航">${navigationMarkup}</nav>
+      <a class="site-menu-contact" href="blog.html?compose=1">写信联系</a>
+    </div>
 
     <dialog class="social-contact-dialog" id="wechatContactDialog" aria-label="种种微信二维码">
       <div class="social-contact-panel">
@@ -186,6 +203,28 @@ if (headerRoot) {
     </dialog>
   `;
 }
+
+const menuButton = document.querySelector(".menu-button");
+const menuPopover = document.querySelector("[data-site-menu]");
+const closeMenuButton = document.querySelector("[data-menu-close]");
+
+const setMenuOpen = (open) => {
+  if (!menuButton || !menuPopover) return;
+  menuButton.setAttribute("aria-expanded", String(open));
+  menuButton.setAttribute("aria-label", open ? "关闭导航" : "打开导航");
+  menuPopover.hidden = !open;
+  document.body.classList.toggle("site-menu-popover-open", open);
+};
+menuButton?.addEventListener("click", () => setMenuOpen(menuPopover.hidden));
+closeMenuButton?.addEventListener("click", () => setMenuOpen(false));
+menuPopover?.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => setMenuOpen(false)));
+document.addEventListener("click", (event) => {
+  if (menuPopover?.hidden || menuPopover.contains(event.target) || menuButton?.contains(event.target)) return;
+  setMenuOpen(false);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") setMenuOpen(false);
+});
 
 const wechatTrigger = document.querySelector("[data-wechat-trigger]");
 const wechatDialog = document.querySelector("#wechatContactDialog");

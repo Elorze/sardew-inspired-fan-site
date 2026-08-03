@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="在种种大世界发布一个新话题。" />
+    <title>写下新话题｜种种大世界</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles.css?v=20260731-social-alignment" />
+    <link rel="stylesheet" href="forum.css?v=20260803-compose" />
+  </head>
+  <body data-page="forum.html">
+    <div data-site-header></div>
+    <main class="forum-compose-page">
+      <a class="forum-compose-back" href="forum.html">← 返回花园广场</a>
+      <section class="forum-compose-card" aria-labelledby="forumComposeTitle">
+        <div class="forum-compose-kicker">A NEW NOTE IN THE GARDEN</div>
+        <h1 id="forumComposeTitle">留下一个新话题</h1>
+        <p class="forum-compose-intro">把此刻想分享的发现、问题或故事，慢慢写给路过这里的人。</p>
+        <form id="forumPostForm" class="forum-post-form">
+          <label class="forum-compose-field">
+            <span>选择分区</span>
+            <select name="categoryId" id="forumPostCategory" required></select>
+          </label>
+          <label class="forum-compose-field">
+            <span>标题</span>
+            <input name="title" id="forumPostTitleInput" maxlength="120" placeholder="给这段话一个名字" required />
+          </label>
+          <label class="forum-compose-field forum-compose-body-field">
+            <span>正文</span>
+            <textarea name="body" id="forumPostBodyInput" maxlength="20000" placeholder="写下你的发现、问题或故事……" required></textarea>
+            <small>请保持友善，也请尽量说清楚你想分享的事情。</small>
+          </label>
+          <footer class="forum-compose-footer">
+            <p id="forumPostFormStatus" role="status" aria-live="polite"></p>
+            <button class="forum-publish-button" type="submit">发布到花园 <span aria-hidden="true">→</span></button>
+          </footer>
+        </form>
+      </section>
+    </main>
+    <div data-site-footer></div>
+    <script src="site-shell.js?v=20260731-xhs-profile"></script>
+    <script src="forum-auth.js?v=20260729-single-login"></script>
+    <script src="forum-compose.js?v=20260803-compose"></script>
+  </body>
+</html>
