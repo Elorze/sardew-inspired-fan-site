@@ -3,10 +3,9 @@ import { readFile, writeFile, mkdir, rename, stat } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { AlipaySdk } from "alipay-sdk";
-import { createAccountService } from "./account-service.mjs";
 import { createAnalyticsService } from "./analytics-service.mjs";
 import { moderateForumReply } from "./content-moderation.mjs";
 import {
@@ -16,6 +15,7 @@ import {
   normalizePaymentCart,
 } from "./payment-service.mjs";
 import { getSupabaseAdminClient } from "./supabase-client.mjs";
+import { createVercelAccountService } from "./vercel-account-service.mjs";
 
 const rootDirectory = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(rootDirectory, "..");
@@ -134,11 +134,7 @@ const alipaySdk = isAlipayConfigured
     })
   : null;
 
-const accountService = await createAccountService({
-  rootDirectory: projectRoot,
-  dataDirectory: runtimeDataRoot,
-  localBaseUrl: accountBaseUrl,
-});
+const accountService = createVercelAccountService();
 const analyticsService = await createAnalyticsService({
   rootDirectory: projectRoot,
   dataDirectory: runtimeDataRoot,
@@ -401,10 +397,10 @@ const mapForumReply = (row) => ({
   author: mapForumAuthor(row.author),
 });
 
-const forumUserId = (request) => accountService.getBrowserAccount(request)?.id || null;
+
 
 const applyForumLike = async (request, response, targetType, targetId, shouldLike) => {
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return;
   const supabase = getSupabaseAdminClient();
   const table = targetType === "post" ? "zz_forum_post_likes" : "zz_forum_reply_likes";
@@ -422,7 +418,7 @@ const applyForumLike = async (request, response, targetType, targetId, shouldLik
 };
 
 const createForumReport = async (request, response, targetType, targetId) => {
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return;
   let body;
   try { body = await parseJsonBody(request); } catch { sendJson(response, 400, { code: "INVALID_JSON", message: "举报信息格式不正确。" }); return; }
@@ -473,7 +469,7 @@ const sendForumPosts = async (url, response) => {
 };
 
 const applyForumLikeV2 = async (request, response, kind, targetId, shouldLike) =>{
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return;
   const supabase = getSupabaseAdminClient();
   const table = kind === "post" ? "zz_forum_post_likes" : "zz_forum_reply_likes";
@@ -494,7 +490,7 @@ const applyForumLikeV2 = async (request, response, kind, targetId, shouldLike) =
 };
 
 const createForumReportV2 = async (request, response, kind, targetId) =>{
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return;
   let body;
   try { body = await parseJsonBody(request); } catch { sendJson(response, 400, { code: "INVALID_JSON", message: "举报格式不正确。" }); return; }
@@ -507,8 +503,8 @@ const createForumReportV2 = async (request, response, kind, targetId) =>{
   sendJson(response, 201, { report: data });
 };
 
-const requireForumAccount = (request, response) => {
-  const account = accountService.getBrowserAccount(request);
+const requireForumAccount = async (request, response) => {
+  const account = await accountService.getBrowserAccount(request);
   if (account) return account;
   sendJson(response, 401, {
     code: "LOGIN_REQUIRED",
@@ -519,7 +515,7 @@ const requireForumAccount = (request, response) => {
 
 const createForumPost = async (request, response) => {
   if (isForumRateLimited(request, "post", 5)) { sendJson(response, 429, { code: "TOO_MANY_FORUM_REQUESTS", message: "发帖太频繁，请稍后再试。" }); return; }
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return;
 
   let body;
@@ -588,7 +584,7 @@ const createForumPost = async (request, response) => {
 
 const createForumReply = async (postId, request, response) => {
   if (isForumRateLimited(request, "reply", 20)) { sendJson(response, 429, { code: "TOO_MANY_FORUM_REQUESTS", message: "回复太频繁，请稍后再试。" }); return; }
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return;
 
   let body;
@@ -681,7 +677,7 @@ const createForumReply = async (postId, request, response) => {
 };
 
 const requireForumAdmin = async (request, response) => {
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return null;
   const supabase = getSupabaseAdminClient();
   const { data, error } = await supabase
@@ -698,7 +694,7 @@ const requireForumAdmin = async (request, response) => {
 };
 
 const updateForumPost = async (postId, request, response) => {
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return;
   let body;
   try { body = await parseJsonBody(request); } catch { sendJson(response, 400, { code: "INVALID_JSON", message: "请求格式不正确。" }); return; }
@@ -718,7 +714,7 @@ const updateForumPost = async (postId, request, response) => {
 };
 
 const deleteForumPost = async (postId, request, response) => {
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return;
   const supabase = getSupabaseAdminClient();
   const { data: post, error } = await supabase.from("zz_forum_posts").select("author_id").eq("id", postId).maybeSingle();
@@ -731,7 +727,7 @@ const deleteForumPost = async (postId, request, response) => {
 };
 
 const deleteForumReply = async (replyId, request, response) => {
-  const account = requireForumAccount(request, response);
+  const account = await requireForumAccount(request, response);
   if (!account) return;
   const supabase = getSupabaseAdminClient();
   const { data: reply, error } = await supabase.from("zz_forum_replies").select("author_id, post_id").eq("id", replyId).maybeSingle();
@@ -812,7 +808,7 @@ const createContentSubmission = async (request, response) => {
   const message = sanitizeText(body.message || body.details, 1200);
   const source = sanitizeText(body.source, 120);
   const visibility = body.visibility === "real" ? "real" : "anonymous";
-  const account = accountService.getBrowserAccount(request);
+  const account = await accountService.getBrowserAccount(request);
 
   if (!type || !message || (type !== "forum-reply" && !title)) {
     sendJson(response, 400, {
@@ -1251,19 +1247,19 @@ const serveStaticFile = async (url, response) => {
   }
 };
 
-const server = createServer(async (request, response) => {
+export const handleRequest = async (request, response) => {
   const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
   accountService.applyCors(request, response, url);
 
   try {
-    if (await accountService.handle(request, response, url)) return;
+    if (await accountService.handle(request, response, url.pathname)) return;
 
     if (request.method === "GET" && url.pathname === "/api/health") {
       sendJson(response, 200, {
         ok: true,
         alipayConfigured: isAlipayConfigured,
         analytics: { database: "sqlite" },
-        account: accountService.health(),
+        account: await accountService.getBrowserAccount(request),
       });
       return;
     }
@@ -1472,14 +1468,17 @@ const server = createServer(async (request, response) => {
       response.end();
     }
   }
-});
+};
 
-server.listen(port, host, () => {
-  console.log(`种种大世界：http://127.0.0.1:${port}`);
-  console.log(`统一账号：已载入 ${accountService.health().clientCount} 个产品`);
-  console.log(
-    isAlipayConfigured
-      ? "支付宝支付：已读取配置"
-      : "支付宝支付：等待 .env 商户配置",
-  );
-});
+if (!process.env.VERCEL) {
+  const server = createServer(handleRequest);
+  server.listen(port, host, () => {
+    console.log(`种种大世界：http://127.0.0.1:${port}`);
+    console.log(`统一账号：已载入 ${accountService.health?.().clientCount || 0} 个产品`);
+    console.log(
+      isAlipayConfigured
+        ? "支付宝支付：已读取配置"
+        : "支付宝支付：等待 .env 商户配置",
+    );
+  });
+}
