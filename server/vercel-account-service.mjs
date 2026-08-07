@@ -17,9 +17,16 @@ const hashToken = (value) =>
 const getSupabaseAnonClient = () => {
   const url = env("SUPABASE_URL");
   const key = env("SUPABASE_ANON_KEY") || env("SUPABASE_PUBLISHABLE_KEY");
-  if (!url || !key) throw new Error("SUPABASE_NOT_CONFIGURED");
+  if (!url || !key) throw new Error("SUPABASE_NOT_CONFIGURED_AUTH");
   return createClient(url, key, {
     auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+  });
+};
+
+const sendSupabaseConfigError = (response, feature = "账号") => {
+  sendJson(response, 503, {
+    code: "SUPABASE_NOT_CONFIGURED",
+    message: `Vercel ${feature}服务还没有配置 Supabase 环境变量。请检查 SUPABASE_URL、SUPABASE_SERVICE_ROLE_KEY，以及 SUPABASE_ANON_KEY 或 SUPABASE_PUBLISHABLE_KEY。`,
   });
 };
 
@@ -212,54 +219,86 @@ const signIn = async (email, password) => {
 };
 
 const handleRegister = async (request, response) => {
-  const body = await readBody(request);
-  const credentials = validateCredentials(body);
-  if (credentials.error) {
-    sendJson(response, 400, { code: credentials.error, message: credentials.message });
-    return;
-  }
-  if ([...(credentials.nickname || "")].length < 2 || [...(credentials.nickname || "")].length > 16) {
-    sendJson(response, 400, { code: "INVALID_NICKNAME", message: "名字需要 2 至 16 个字。" });
-    return;
-  }
+  try {
+    const body = await readBody(request);
+    const credentials = validateCredentials(body);
+    if (credentials.error) {
+      sendJson(response, 400, { code: credentials.error, message: credentials.message });
+      return;
+    }
+    if ([...(credentials.nickname || "")].length < 2 || [...(credentials.nickname || "")].length > 16) {
+      sendJson(response, 400, { code: "INVALID_NICKNAME", message: "名字需要 2 至 16 个字。" });
+      return;
+    }
 
-  const admin = getSupabaseAdminClient();
-  const { data, error } = await admin.auth.admin.createUser({
-    email: credentials.email,
-    password: credentials.password,
-    email_confirm: true,
-    user_metadata: { nickname: credentials.nickname },
-  });
-  if (error) {
-    sendJson(response, 409, { code: "REGISTER_FAILED", message: error.message || "注册失败。" });
-    return;
-  }
-  const user = data.user;
-  await upsertProfile({ id: user.id, email: credentials.email, nickname: credentials.nickname });
-  const login = await signIn(credentials.email, credentials.password);
-  if (!login.ok) {
+    const admin = getSupabaseAdminClient();
+    const { data, error } = await admin.auth.admin.createUser({
+      email: credentials.email,
+      password: credentials.password,
+      email_confirm: true,
+      user_metadata: { nickname: credentials.nickname },
+    });
+    if (error) {
+      sendJson(response, 409, { code: "REGISTER_FAILED", message: error.message || "注册失败。" });
+      return;
+    }
+    const user = data.user;
+    await upsertProfile({ id: user.id, email: credentials.email, nickname: credentials.nickname });
+    const login = await signIn(credentials.email, credentials.password);
+    if (!login.ok) {
+      sendJson(response, 201, { account: await readUser(user.id) });
+      return;
+    }
+    await createSession(request, response, user.id);
     sendJson(response, 201, { account: await readUser(user.id) });
-    return;
+  } catch (error) {
+    if (error.message === "REQUEST_TOO_LARGE") {
+      sendJson(response, 413, { code: "REQUEST_TOO_LARGE", message: "请求内容过大。" });
+      return;
+    }
+    if (error.message === "INVALID_JSON") {
+      sendJson(response, 400, { code: "INVALID_JSON", message: "请求内容格式不正确。" });
+      return;
+    }
+    if (error.message === "SUPABASE_NOT_CONFIGURED" || error.message === "SUPABASE_NOT_CONFIGURED_AUTH") {
+      sendSupabaseConfigError(response, "注册");
+      return;
+    }
+    throw error;
   }
-  await createSession(request, response, user.id);
-  sendJson(response, 201, { account: await readUser(user.id) });
 };
 
 const handleLogin = async (request, response) => {
-  const body = await readBody(request);
-  const credentials = validateCredentials(body);
-  if (credentials.error) {
-    sendJson(response, 400, { code: credentials.error, message: credentials.message });
-    return;
+  try {
+    const body = await readBody(request);
+    const credentials = validateCredentials(body);
+    if (credentials.error) {
+      sendJson(response, 400, { code: credentials.error, message: credentials.message });
+      return;
+    }
+    const result = await signIn(credentials.email, credentials.password);
+    if (!result.ok) {
+      sendJson(response, 401, { code: "INVALID_CREDENTIALS", message: "邮箱或密码不正确。" });
+      return;
+    }
+    await upsertProfile({ id: result.user.id, email: credentials.email, nickname: credentials.nickname });
+    await createSession(request, response, result.user.id);
+    sendJson(response, 200, { account: await readUser(result.user.id) });
+  } catch (error) {
+    if (error.message === "REQUEST_TOO_LARGE") {
+      sendJson(response, 413, { code: "REQUEST_TOO_LARGE", message: "请求内容过大。" });
+      return;
+    }
+    if (error.message === "INVALID_JSON") {
+      sendJson(response, 400, { code: "INVALID_JSON", message: "请求内容格式不正确。" });
+      return;
+    }
+    if (error.message === "SUPABASE_NOT_CONFIGURED" || error.message === "SUPABASE_NOT_CONFIGURED_AUTH") {
+      sendSupabaseConfigError(response, "登录");
+      return;
+    }
+    throw error;
   }
-  const result = await signIn(credentials.email, credentials.password);
-  if (!result.ok) {
-    sendJson(response, 401, { code: "INVALID_CREDENTIALS", message: "邮箱或密码不正确。" });
-    return;
-  }
-  await upsertProfile({ id: result.user.id, email: credentials.email, nickname: credentials.nickname });
-  await createSession(request, response, result.user.id);
-  sendJson(response, 200, { account: await readUser(result.user.id) });
 };
 
 const chinaDateKey = () =>
