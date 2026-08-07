@@ -78,6 +78,9 @@ const accountBaseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   : process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : `http://127.0.0.1:${port}`;
+const alipayReturnPath = process.env.VERCEL
+  ? "/api/payment/alipay/return"
+  : "/payment/alipay/return";
 
 const readSecret = (inlineName, pathName) => {
   const inlineValue = process.env[inlineName]?.trim();
@@ -1046,7 +1049,7 @@ const createAlipayOrder = async (request, response) => {
           total_amount: totalAmount,
           timeout_express: "15m",
         },
-        returnUrl: `${alipayConfig.publicBaseUrl}/payment/alipay/return`,
+        returnUrl: `${alipayConfig.publicBaseUrl}${alipayReturnPath}`,
         notifyUrl: `${alipayConfig.publicBaseUrl}/api/alipay/notify`,
       },
     );
@@ -1434,7 +1437,8 @@ export const handleRequest = async (request, response) => {
 
     if (
       request.method === "GET" &&
-      url.pathname === "/payment/alipay/return"
+      (url.pathname === "/payment/alipay/return" ||
+        url.pathname === "/api/payment/alipay/return")
     ) {
       handleAlipayReturn(url, response);
       return;
