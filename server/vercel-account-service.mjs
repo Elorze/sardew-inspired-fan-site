@@ -122,18 +122,37 @@ const readUser = async (userId) => {
   ]);
   if (userError) throw userError;
   if (progressError) throw progressError;
-  if (!user) return null;
 
-  const nickname = String(user.display_name || user.name || "无名旅人").trim() || "无名旅人";
+  let profile = user;
+  if (!profile) {
+    const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
+    if (authError) throw authError;
+    if (!authUser?.user) return null;
+    const fallbackName = String(
+      authUser.user.user_metadata?.nickname ||
+        authUser.user.user_metadata?.name ||
+        authUser.user.email?.split("@")[0] ||
+        "无名旅人",
+    ).trim() || "无名旅人";
+    profile = {
+      id: authUser.user.id,
+      email: authUser.user.email,
+      name: fallbackName,
+      display_name: fallbackName,
+      updated_at: authUser.user.updated_at || authUser.user.created_at || nowIso(),
+    };
+  }
+
+  const nickname = String(profile.display_name || profile.name || "无名旅人").trim() || "无名旅人";
   const points = Number(progress?.forum_points || 0);
   return {
-    id: user.id,
-    email: user.email,
+    id: profile.id,
+    email: profile.email,
     nickname,
     level: "LV.1 发芽",
     points: Number.isFinite(points) && points >= 0 ? points : 0,
-    createdAt: user.updated_at || nowIso(),
-    updatedAt: user.updated_at || progress?.updated_at || nowIso(),
+    createdAt: profile.updated_at || nowIso(),
+    updatedAt: profile.updated_at || progress?.updated_at || nowIso(),
     forumPoints: Number.isFinite(points) && points >= 0 ? points : 0,
     forumCheckInStreak: Number(progress?.forum_check_in_streak || 0),
     forumLastCheckInDate: progress?.forum_last_check_in_date || null,
@@ -258,6 +277,7 @@ const handleRegister = async (request, response) => {
     }
     const user = data.user;
     await upsertProfile({ id: user.id, email: credentials.email, nickname: credentials.nickname });
+    await ensureUserProfile(user.id);
     const login = await signIn(credentials.email, credentials.password);
     if (!login.ok) {
       sendJson(response, 201, { account: await readUser(user.id) });
@@ -296,6 +316,7 @@ const handleLogin = async (request, response) => {
       return;
     }
     await upsertProfile({ id: result.user.id, email: credentials.email, nickname: credentials.nickname });
+    await ensureUserProfile(result.user.id);
     await createSession(request, response, result.user.id);
     sendJson(response, 200, { account: await readUser(result.user.id) });
   } catch (error) {
@@ -327,6 +348,40 @@ const readProgress = async (userId) => {
     .maybeSingle();
   if (error) throw error;
   return data || {};
+};
+
+const ensureUserProfile = async (userId) => {
+  const supabase = getSupabaseAdminClient();
+  const { data: existing, error } = await supabase
+    .from("users")
+    .select("id")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  if (existing) return;
+
+  const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
+  if (authError) throw authError;
+  const email = authUser?.user?.email;
+  if (!email) throw new Error("MISSING_AUTH_USER");
+  const fallbackName = String(
+    authUser.user.user_metadata?.nickname ||
+      authUser.user.user_metadata?.name ||
+      email.split("@")[0] ||
+      "无名旅人",
+  ).trim() || "无名旅人";
+  const { error: insertError } = await supabase.from("users").insert({
+    id: userId,
+    email,
+    name: fallbackName,
+    display_name: fallbackName,
+    gender: "neutral",
+    location_label: "远方",
+    coords: null,
+    invite_code: "",
+    updated_at: nowIso(),
+  });
+  if (insertError) throw insertError;
 };
 
 const updateProgress = async (userId, values) => {
