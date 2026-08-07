@@ -30,6 +30,20 @@ const sendSupabaseConfigError = (response, feature = "账号") => {
   });
 };
 
+const isBackendAvailabilityError = (error) => {
+  const message = String(error?.message || "").toLowerCase();
+  return (
+    message.includes("supabase_not_configured") ||
+    message.includes("invalid url") ||
+    message.includes("fetch failed") ||
+    message.includes("failed to fetch") ||
+    message.includes("permission denied") ||
+    message.includes("does not exist") ||
+    message.includes("relation") ||
+    message.includes("network error")
+  );
+};
+
 const parseCookies = (request) => {
   const cookies = {};
   for (const part of String(request.headers.cookie || "").split(";")) {
@@ -260,7 +274,7 @@ const handleRegister = async (request, response) => {
       sendJson(response, 400, { code: "INVALID_JSON", message: "请求内容格式不正确。" });
       return;
     }
-    if (error.message === "SUPABASE_NOT_CONFIGURED" || error.message === "SUPABASE_NOT_CONFIGURED_AUTH") {
+    if (error.message === "SUPABASE_NOT_CONFIGURED" || error.message === "SUPABASE_NOT_CONFIGURED_AUTH" || isBackendAvailabilityError(error) || process.env.VERCEL) {
       sendSupabaseConfigError(response, "注册");
       return;
     }
@@ -293,7 +307,7 @@ const handleLogin = async (request, response) => {
       sendJson(response, 400, { code: "INVALID_JSON", message: "请求内容格式不正确。" });
       return;
     }
-    if (error.message === "SUPABASE_NOT_CONFIGURED" || error.message === "SUPABASE_NOT_CONFIGURED_AUTH") {
+    if (error.message === "SUPABASE_NOT_CONFIGURED" || error.message === "SUPABASE_NOT_CONFIGURED_AUTH" || isBackendAvailabilityError(error) || process.env.VERCEL) {
       sendSupabaseConfigError(response, "登录");
       return;
     }
