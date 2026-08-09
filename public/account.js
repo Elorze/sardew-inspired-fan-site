@@ -20,9 +20,6 @@ const accountAvatars = document.querySelectorAll("[data-account-avatar]");
 const accountProfileAvatar = document.querySelector(
   "[data-account-profile-avatar]",
 );
-const accountProfileToggle = document.querySelector(
-  "[data-account-profile-toggle]",
-);
 const accountActions = document.querySelector("[data-account-actions]");
 const accountProfileName = document.querySelector("[data-account-profile-name]");
 const accountProfileEmail = document.querySelector(
@@ -59,17 +56,11 @@ const dispatchAccountChange = () => {
   );
 };
 
-const setAccountActionsOpen = (open) => {
-  const shouldOpen = Boolean(open && accountSession);
-  if (accountActions) accountActions.hidden = !shouldOpen;
-  accountProfileToggle?.setAttribute("aria-expanded", String(shouldOpen));
-};
-
 const syncAccountView = () => {
   const signedIn = Boolean(accountSession);
-  setAccountActionsOpen(false);
   if (accountSignedOut) accountSignedOut.hidden = signedIn;
   if (accountSignedIn) accountSignedIn.hidden = !signedIn;
+  if (accountActions) accountActions.hidden = !signedIn;
 
   accountLabels.forEach((label) => {
     label.textContent = signedIn ? accountSession.nickname : "登录";
@@ -94,14 +85,6 @@ const syncAccountView = () => {
   if (accountProfileEmail) {
     accountProfileEmail.textContent = accountSession?.email || "";
   }
-  if (accountProfileToggle) {
-    accountProfileToggle.setAttribute(
-      "aria-label",
-      signedIn
-        ? `打开${accountSession.nickname}的账号操作`
-        : "打开账号操作",
-    );
-  }
 
   dispatchAccountChange();
 };
@@ -115,7 +98,6 @@ const setAccountPending = (pending) => {
   if (accountSubmit) accountSubmit.disabled = pending;
   if (accountSwitch) accountSwitch.disabled = pending;
   if (accountSignout) accountSignout.disabled = pending;
-  if (accountProfileToggle) accountProfileToggle.disabled = pending;
 };
 
 const setAccountMode = (mode) => {
@@ -173,7 +155,6 @@ const openAccountDialog = () => {
 
 const closeAccountDialog = () => {
   if (!accountDialog) return;
-  setAccountActionsOpen(false);
   if (typeof accountDialog.close === "function") {
     accountDialog.close();
   } else {
@@ -186,12 +167,6 @@ accountTriggers.forEach((trigger) => {
 });
 
 accountClose?.addEventListener("click", closeAccountDialog);
-
-accountProfileToggle?.addEventListener("click", () => {
-  const open = accountProfileToggle.getAttribute("aria-expanded") !== "true";
-  setAccountActionsOpen(open);
-  if (open) accountSwitch?.focus();
-});
 
 accountDialog?.addEventListener("click", (event) => {
   if (event.target === accountDialog) closeAccountDialog();

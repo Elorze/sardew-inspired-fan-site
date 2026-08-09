@@ -1,7 +1,7 @@
 if (!document.querySelector('link[data-navigation-styles]')) {
   const navigationStyles = document.createElement("link");
   navigationStyles.rel = "stylesheet";
-  navigationStyles.href = "navigation.css?v=20260802-v2";
+  navigationStyles.href = "navigation.css?v=20260809-menu-single";
   navigationStyles.dataset.navigationStyles = "";
   document.head.append(navigationStyles);
 }
@@ -78,7 +78,14 @@ if (headerRoot) {
         </a>
       </nav>
 
-      <button class="menu-button" type="button" aria-label="打开导航" aria-expanded="false">
+      <button
+        class="menu-button"
+        type="button"
+        aria-label="打开导航"
+        aria-expanded="false"
+        aria-controls="siteMenuPopover"
+        aria-haspopup="true"
+      >
         <span></span>
         <span></span>
         <span></span>
@@ -97,16 +104,16 @@ if (headerRoot) {
         </span>
         <span class="visually-hidden" data-account-label>登录</span>
       </button>
-    </header>
 
-    <div class="site-menu-popover" data-site-menu hidden>
-      <div class="site-menu-heading">
-        <span>种种大世界</span>
-        <button type="button" data-menu-close aria-label="关闭菜单">×</button>
+      <div class="site-menu-popover" id="siteMenuPopover" data-site-menu hidden>
+        <div class="site-menu-heading">
+          <span>种种大世界</span>
+          <button type="button" data-menu-close aria-label="关闭菜单">×</button>
+        </div>
+        <nav aria-label="完整网站导航">${navigationMarkup}</nav>
+        <a class="site-menu-contact" href="blog.html?compose=1">写信联系</a>
       </div>
-      <nav aria-label="完整网站导航">${navigationMarkup}</nav>
-      <a class="site-menu-contact" href="blog.html?compose=1">写信联系</a>
-    </div>
+    </header>
 
     <dialog class="social-contact-dialog" id="wechatContactDialog" aria-label="种种微信二维码">
       <div class="social-contact-panel">
@@ -175,13 +182,7 @@ if (headerRoot) {
         </section>
 
         <section class="site-account-signed-in" data-account-signed-in hidden>
-          <button
-            class="site-account-profile-toggle"
-            type="button"
-            aria-expanded="false"
-            aria-controls="siteAccountActions"
-            data-account-profile-toggle
-          >
+          <div class="site-account-profile">
             <span class="site-account-profile-avatar" data-account-profile-avatar aria-hidden="true">
               <img src="assets/wiki-potted-sprout.png" alt="" />
             </span>
@@ -189,10 +190,9 @@ if (headerRoot) {
               <strong data-account-profile-name></strong>
               <span data-account-profile-email></span>
             </span>
-            <span class="site-account-profile-chevron" aria-hidden="true">⌄</span>
-          </button>
+          </div>
 
-          <div class="site-account-actions" id="siteAccountActions" data-account-actions hidden>
+          <div class="site-account-actions" id="siteAccountActions" data-account-actions>
             <button class="site-account-switch" type="button" data-account-switch>切换账号</button>
             <button class="site-account-signout" type="button" data-account-signout>退出登录</button>
           </div>
@@ -224,6 +224,9 @@ document.addEventListener("click", (event) => {
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") setMenuOpen(false);
+});
+document.querySelector("[data-account-trigger]")?.addEventListener("click", () => {
+  setMenuOpen(false);
 });
 
 const wechatTrigger = document.querySelector("[data-wechat-trigger]");
@@ -260,7 +263,13 @@ if (footerRoot) {
             <b data-page-visitors>--</b>
             <small>来过</small>
           </span>
-          <button type="button" aria-pressed="false" data-page-heat-trigger>
+          <button
+            type="button"
+            aria-pressed="false"
+            aria-label="踩踩留下脚印"
+            title="点一下，留下脚印"
+            data-page-heat-trigger
+          >
             <span>踩踩</span>
             <b data-page-heat>--</b>
           </button>
@@ -420,14 +429,14 @@ window.addEventListener("pagehide", () => {
 if (!document.querySelector('link[data-account-styles]')) {
   const accountStyles = document.createElement("link");
   accountStyles.rel = "stylesheet";
-  accountStyles.href = "account.css?v=20260730-profile-menu";
+  accountStyles.href = "account.css?v=20260809-flat-profile";
   accountStyles.dataset.accountStyles = "";
   document.head.append(accountStyles);
 }
 
 if (!document.querySelector('script[data-account-script]')) {
   const accountScript = document.createElement("script");
-  accountScript.src = "account.js?v=20260730-profile-menu";
+  accountScript.src = "account.js?v=20260809-flat-profile";
   accountScript.dataset.accountScript = "";
   document.body.append(accountScript);
 }

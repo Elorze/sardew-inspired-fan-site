@@ -104,16 +104,16 @@ test("页面浏览与踩踩写入 SQLite 并按访客去重", async (t) => {
     body: JSON.stringify({ pageKey: "index.html" }),
   });
   assert.equal(repeatedView.response.status, 200);
-  assert.equal(repeatedView.payload.views, 1);
+  assert.equal(repeatedView.payload.views, 2);
   assert.equal(repeatedView.payload.visitors, 1);
-  assert.equal(repeatedView.payload.counted, false);
+  assert.equal(repeatedView.payload.counted, true);
 
   const secondVisitor = await jsonRequest(`${baseUrl}/api/analytics/view`, {
     method: "POST",
     origin: baseUrl,
     body: JSON.stringify({ pageKey: "index.html" }),
   });
-  assert.equal(secondVisitor.payload.views, 2);
+  assert.equal(secondVisitor.payload.views, 3);
   assert.equal(secondVisitor.payload.visitors, 2);
 
   const firstHeat = await jsonRequest(`${baseUrl}/api/analytics/heat`, {
@@ -141,7 +141,7 @@ test("页面浏览与踩踩写入 SQLite 并按访客去重", async (t) => {
   assert.deepEqual(summary.payload.pages, [
     {
       pageKey: "index.html",
-      views: 2,
+      views: 3,
       visitors: 2,
       heat: 1,
     },

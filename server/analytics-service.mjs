@@ -5,7 +5,6 @@ import { DatabaseSync } from "node:sqlite";
 
 const visitorCookieName = "zz_visitor";
 const visitorLifetimeSeconds = 365 * 24 * 60 * 60;
-const viewWindowMs = 30 * 60 * 1000;
 
 const parseCookies = (request) => {
   const cookies = {};
@@ -97,11 +96,6 @@ export const createAnalyticsService = async ({
     VALUES (?, 0, 0, ?)
     ON CONFLICT(page_key) DO UPDATE SET updated_at = excluded.updated_at
   `);
-  const readVisitor = database.prepare(`
-    SELECT last_seen_at
-    FROM page_visitors
-    WHERE page_key = ? AND visitor_hash = ?
-  `);
   const addVisitorView = database.prepare(`
     INSERT INTO page_visitors (
       page_key,
@@ -114,11 +108,6 @@ export const createAnalyticsService = async ({
     ON CONFLICT(page_key, visitor_hash) DO UPDATE SET
       last_seen_at = excluded.last_seen_at,
       view_count = page_visitors.view_count + 1
-  `);
-  const touchVisitor = database.prepare(`
-    UPDATE page_visitors
-    SET last_seen_at = ?
-    WHERE page_key = ? AND visitor_hash = ?
   `);
   const incrementViews = database.prepare(`
     UPDATE page_stats
@@ -203,24 +192,12 @@ export const createAnalyticsService = async ({
   const recordView = (request, response, rawPageKey) => {
     const pageKey = normalizePageKey(rawPageKey);
     const hash = getVisitor(request, response);
-    const now = new Date();
-    const nowText = now.toISOString();
+    const nowText = new Date().toISOString();
     ensurePage.run(pageKey, nowText);
-    const visitor = readVisitor.get(pageKey, hash);
-    const lastSeenAt = visitor
-      ? Date.parse(String(visitor.last_seen_at || ""))
-      : Number.NaN;
-    const counted =
-      !Number.isFinite(lastSeenAt) || now.getTime() - lastSeenAt >= viewWindowMs;
-
-    if (counted) {
-      addVisitorView.run(pageKey, hash, nowText, nowText);
-      incrementViews.run(nowText, pageKey);
-    } else {
-      touchVisitor.run(nowText, pageKey, hash);
-    }
-
-    return { ...statsFor(pageKey, hash), counted };
+    // Views count every page load/refresh; visitors stay unique per cookie.
+    addVisitorView.run(pageKey, hash, nowText, nowText);
+    incrementViews.run(nowText, pageKey);
+    return { ...statsFor(pageKey, hash), counted: true };
   };
 
   const stampHeat = (request, response, rawPageKey) => {

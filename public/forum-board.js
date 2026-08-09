@@ -67,6 +67,8 @@ const savedReplyCountFor = (postId) => {
 
 const createForumRow = (thread) => {
   const customReplyCount = savedReplyCountFor(thread.id);
+  const serverReplyCount = Number(thread.replies) || 0;
+  const totalReplyCount = Math.max(serverReplyCount, customReplyCount);
   const row = document.createElement("a");
   row.className = `forum-row${thread.pinned ? " is-pinned" : ""}`;
   row.href = `forum-post.html?id=${encodeURIComponent(thread.id)}`;
@@ -103,13 +105,20 @@ const createForumRow = (thread) => {
   stats.className = "forum-thread-stats";
   const count = document.createElement("b");
   count.className = "forum-reply-count";
-  count.textContent = customReplyCount
-    ? `${customReplyCount} 条你的回复`
-    : "等你来聊";
+  if (customReplyCount > 0 && customReplyCount >= serverReplyCount) {
+    count.textContent = `${customReplyCount} 条你的回复`;
+  } else if (totalReplyCount > 0) {
+    count.textContent = `${totalReplyCount} 回复`;
+  } else {
+    count.textContent = "等你来聊";
+  }
   const updated = document.createElement("time");
   updated.className = "forum-updated";
   if (thread.datetime) updated.dateTime = thread.datetime;
-  updated.textContent = customReplyCount ? "刚刚" : thread.updated;
+  updated.textContent =
+    customReplyCount > 0 && customReplyCount >= serverReplyCount
+      ? "刚刚"
+      : thread.updated;
   stats.append(count, updated);
 
   row.append(avatar, topic, stats);

@@ -1,18 +1,5 @@
-const navButton = document.querySelector(".menu-button");
-const nav = document.querySelector(".site-nav");
-
-navButton?.addEventListener("click", () => {
-  const isOpen = nav?.classList.toggle("is-open") ?? false;
-  navButton.setAttribute("aria-expanded", String(isOpen));
-});
-
-nav?.addEventListener("click", (event) => {
-  const selectedLink = event.target instanceof Element ? event.target.closest("a") : null;
-  if (selectedLink instanceof HTMLAnchorElement && nav.contains(selectedLink)) {
-    nav.classList.remove("is-open");
-    navButton?.setAttribute("aria-expanded", "false");
-  }
-});
+// Site navigation is owned by site-shell.js (.site-menu-popover).
+// Do not toggle .site-nav here — that legacy panel stacks a second frame on mobile.
 
 const scenes = [...document.querySelectorAll(".scene")];
 const dotsRoot = document.querySelector(".scene-dots");

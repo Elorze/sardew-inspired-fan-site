@@ -226,30 +226,16 @@
   text-align: left;
 }
 
-.site-account-profile-toggle {
+.site-account-profile {
   display: grid;
   width: 100%;
   min-width: 0;
-  grid-template-columns: 54px minmax(0, 1fr) 20px;
+  grid-template-columns: 54px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
   padding: 7px 4px;
-  border: 0;
-  background: transparent;
   color: #244b42;
-  font: inherit;
   text-align: left;
-  cursor: pointer;
-}
-
-.site-account-profile-toggle:hover,
-.site-account-profile-toggle:focus-visible {
-  color: #b55778;
-  outline: 0;
-}
-
-.site-account-profile-toggle:focus-visible .site-account-profile-avatar {
-  border-color: #c96f91;
 }
 
 .site-account-profile-avatar {
@@ -286,19 +272,6 @@
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.site-account-profile-chevron {
-  color: #6e877f;
-  font-size: 1rem;
-  line-height: 1;
-  text-align: center;
-  transform: translateY(-2px);
-  transition: transform 160ms ease;
-}
-
-.site-account-profile-toggle[aria-expanded="true"] .site-account-profile-chevron {
-  transform: translateY(2px) rotate(180deg);
 }
 
 .site-account-actions {

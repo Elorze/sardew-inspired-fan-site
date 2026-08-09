@@ -1744,27 +1744,48 @@ body.cart-open .cart-drawer {
 }
 
 .site-engagement button {
-  padding: 2px 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
+  align-items: center;
+  min-height: 26px;
+  padding: 3px 11px;
+  border: 1.5px solid color-mix(in srgb, var(--brand-mint-deep) 72%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand-mint) 46%, #fff);
+  color: #35675b;
   font: inherit;
+  font-weight: 700;
+  box-shadow: 1px 1px 0 rgba(61, 101, 90, 0.16);
   cursor: pointer;
   transition:
     color 150ms ease,
-    transform 170ms ease;
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 170ms ease,
+    box-shadow 170ms ease;
 }
 
-.site-engagement button:hover,
-.site-engagement button:focus-visible,
-.site-engagement button.is-stamped {
-  color: var(--berry, #b85f7f);
-  outline: 0;
+.site-engagement button > span {
+  letter-spacing: 0.02em;
+}
+
+.site-engagement button > b {
+  color: inherit;
 }
 
 .site-engagement button:hover,
 .site-engagement button:focus-visible {
+  color: var(--pink, #a54f72);
+  border-color: color-mix(in srgb, var(--pink, #a54f72) 58%, var(--brand-mint-deep));
+  background: color-mix(in srgb, #f7e6ec 62%, #fff);
+  outline: 0;
   transform: translateY(-1px);
+  box-shadow: 2px 2px 0 rgba(165, 79, 114, 0.16);
+}
+
+.site-engagement button.is-stamped {
+  color: var(--pink, #a54f72);
+  border-color: color-mix(in srgb, var(--pink, #a54f72) 52%, var(--brand-mint-deep));
+  background: color-mix(in srgb, #f3d7e2 55%, #fff);
+  box-shadow: inset 0 0 0 1px rgba(165, 79, 114, 0.12);
 }
 
 .site-engagement button:disabled {
@@ -1778,12 +1799,12 @@ body.cart-open .cart-drawer {
 
 @keyframes engagement-number-update {
   0% {
-    color: var(--berry, #c85f86);
+    color: var(--pink, #c85f86);
     transform: translateY(2px) scale(0.88);
   }
 
   62% {
-    color: var(--berry, #c85f86);
+    color: var(--pink, #c85f86);
     transform: translateY(-1px) scale(1.12);
   }
 
@@ -3038,25 +3059,10 @@ body[data-page="shop.html"] .site-footer {
     height: 19px;
   }
 
-  .site-nav {
-    position: absolute;
-    top: 72px;
-    right: 16px;
-    left: 16px;
-    display: none;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 10px;
-    border: 4px solid var(--line);
-    background: var(--brand-mint);
-  }
-
+  /* Legacy mobile flyout removed: navigation uses .site-menu-popover from site-shell.js */
+  .site-nav,
   .site-nav.is-open {
-    display: flex;
-  }
-
-  .site-nav a {
-    text-align: left;
+    display: none;
   }
 
   .hero {
