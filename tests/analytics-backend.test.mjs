@@ -20,9 +20,15 @@ const findOpenPort = async () =>
 
 const waitForServer = async (baseUrl, child) => {
   let lastError;
-  for (let attempt = 0; attempt < 60; attempt += 1) {
+  let stderr = "";
+  child.stderr?.on("data", (chunk) => {
+    stderr += String(chunk);
+  });
+  for (let attempt = 0; attempt < 120; attempt += 1) {
     if (child.exitCode !== null) {
-      throw new Error(`统计测试服务提前退出：${child.exitCode}`);
+      throw new Error(
+        `统计测试服务提前退出：${child.exitCode}${stderr ? `\n${stderr}` : ""}`,
+      );
     }
     try {
       const response = await fetch(`${baseUrl}/api/health`);
@@ -30,9 +36,9 @@ const waitForServer = async (baseUrl, child) => {
     } catch (error) {
       lastError = error;
     }
-    await new Promise((resolveWait) => setTimeout(resolveWait, 50));
+    await new Promise((resolveWait) => setTimeout(resolveWait, 100));
   }
-  throw lastError || new Error("统计测试服务没有按时启动。");
+  throw lastError || new Error(`统计测试服务没有按时启动。${stderr}`);
 };
 
 const stopServer = async (child) => {
@@ -71,6 +77,7 @@ test("页面浏览与踩踩写入 SQLite 并按访客去重", async (t) => {
       ACCOUNT_ISSUER: baseUrl,
       ACCOUNT_USERS_FILE: join(dataDirectory, "users.json"),
       ACCOUNT_STATE_FILE: join(dataDirectory, "account-state.json"),
+      ANALYTICS_BACKEND: "sqlite",
       ANALYTICS_DB_FILE: join(dataDirectory, "site-analytics.sqlite"),
       NO_PROXY: "127.0.0.1,localhost",
       no_proxy: "127.0.0.1,localhost",
@@ -93,9 +100,9 @@ test("页面浏览与踩踩写入 SQLite 并按访客去重", async (t) => {
   assert.equal(firstView.payload.visitors, 1);
   assert.equal(firstView.payload.heat, 0);
   assert.equal(firstView.payload.counted, true);
-  const firstCookie = firstView.response.headers
-    .get("set-cookie")
-    .split(";")[0];
+  const setCookie = firstView.response.headers.get("set-cookie");
+  assert.ok(setCookie, "visitor cookie should be issued");
+  const firstCookie = setCookie.split(";")[0];
 
   const repeatedView = await jsonRequest(`${baseUrl}/api/analytics/view`, {
     method: "POST",

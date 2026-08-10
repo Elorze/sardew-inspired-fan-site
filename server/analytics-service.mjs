@@ -2,6 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { mkdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { getSupabaseAdminClient } from "./supabase-client.mjs";
 
 const visitorCookieName = "zz_visitor";
 const visitorLifetimeSeconds = 365 * 24 * 60 * 60;
@@ -21,7 +22,7 @@ const parseCookies = (request) => {
 const visitorHash = (visitorId) =>
   createHash("sha256").update(visitorId).digest("base64url");
 
-const normalizePageKey = (value) => {
+export const normalizePageKey = (value) => {
   const pageKey = String(value || "").trim();
   if (
     pageKey.length < 1 ||
@@ -45,7 +46,48 @@ const createVisitorCookie = (visitorId, secure) =>
     .filter(Boolean)
     .join("; ");
 
-export const createAnalyticsService = async ({
+const appendSetCookie = (response, cookie) => {
+  if (!response) return;
+  if (typeof response.appendHeader === "function") {
+    response.appendHeader("Set-Cookie", cookie);
+    return;
+  }
+  const existing = response.getHeader?.("Set-Cookie");
+  if (!existing) {
+    response.setHeader("Set-Cookie", cookie);
+    return;
+  }
+  const cookies = Array.isArray(existing) ? existing : [String(existing)];
+  response.setHeader("Set-Cookie", [...cookies, cookie]);
+};
+
+const resolveVisitor = (request, response) => {
+  const existing = parseCookies(request)[visitorCookieName];
+  const visitorId = /^[A-Za-z0-9_-]{24,128}$/.test(existing || "")
+    ? existing
+    : randomBytes(24).toString("base64url");
+  if (visitorId !== existing) {
+    const secure =
+      request.headers["x-forwarded-proto"] === "https" ||
+      Boolean(request.socket?.encrypted);
+    appendSetCookie(response, createVisitorCookie(visitorId, secure));
+  }
+  return visitorHash(visitorId);
+};
+
+const shouldUseSupabase = () => {
+  const backend = String(process.env.ANALYTICS_BACKEND || "")
+    .trim()
+    .toLowerCase();
+  if (backend === "sqlite") return false;
+  if (backend === "supabase") return true;
+  return Boolean(
+    String(process.env.SUPABASE_URL || "").trim() &&
+      String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim(),
+  );
+};
+
+const createSqliteAnalyticsService = async ({
   rootDirectory,
   dataDirectory = rootDirectory,
 }) => {
@@ -124,7 +166,9 @@ export const createAnalyticsService = async ({
     WHERE page_key = ?
   `);
   const readStats = (pageKey) =>
-    database.prepare(`
+    database
+      .prepare(
+        `
       SELECT
         page_stats.page_key AS pageKey,
         page_stats.views AS views,
@@ -135,15 +179,23 @@ export const createAnalyticsService = async ({
         ON page_visitors.page_key = page_stats.page_key
       WHERE page_stats.page_key = ?
       GROUP BY page_stats.page_key
-    `).get(pageKey);
+    `,
+      )
+      .get(pageKey);
   const readHeat = (pageKey, visitorHashValue) =>
-    database.prepare(`
+    database
+      .prepare(
+        `
       SELECT 1 AS heated
       FROM page_heat
       WHERE page_key = ? AND visitor_hash = ?
-    `).get(pageKey, visitorHashValue);
+    `,
+      )
+      .get(pageKey, visitorHashValue);
   const readSummary = () =>
-    database.prepare(`
+    database
+      .prepare(
+        `
       SELECT
         page_stats.page_key AS pageKey,
         page_stats.views AS views,
@@ -154,24 +206,9 @@ export const createAnalyticsService = async ({
         ON page_visitors.page_key = page_stats.page_key
       GROUP BY page_stats.page_key
       ORDER BY page_stats.views DESC, page_stats.heat DESC, page_stats.page_key ASC
-    `).all();
-
-  const getVisitor = (request, response) => {
-    const existing = parseCookies(request)[visitorCookieName];
-    const visitorId = /^[A-Za-z0-9_-]{24,128}$/.test(existing || "")
-      ? existing
-      : randomBytes(24).toString("base64url");
-    if (visitorId !== existing && response) {
-      const secure =
-        request.headers["x-forwarded-proto"] === "https" ||
-        Boolean(request.socket.encrypted);
-      response.setHeader(
-        "Set-Cookie",
-        createVisitorCookie(visitorId, secure),
-      );
-    }
-    return visitorHash(visitorId);
-  };
+    `,
+      )
+      .all();
 
   const statsFor = (pageKey, hash) => {
     const stats = readStats(pageKey) || {
@@ -189,48 +226,137 @@ export const createAnalyticsService = async ({
     };
   };
 
-  const recordView = (request, response, rawPageKey) => {
-    const pageKey = normalizePageKey(rawPageKey);
-    const hash = getVisitor(request, response);
-    const nowText = new Date().toISOString();
-    ensurePage.run(pageKey, nowText);
-    // Views count every page load/refresh; visitors stay unique per cookie.
-    addVisitorView.run(pageKey, hash, nowText, nowText);
-    incrementViews.run(nowText, pageKey);
-    return { ...statsFor(pageKey, hash), counted: true };
+  return {
+    backend: "sqlite",
+    getStats: async (request, response, rawPageKey) => {
+      const pageKey = normalizePageKey(rawPageKey);
+      const hash = resolveVisitor(request, response);
+      ensurePage.run(pageKey, new Date().toISOString());
+      return statsFor(pageKey, hash);
+    },
+    recordView: async (request, response, rawPageKey) => {
+      const pageKey = normalizePageKey(rawPageKey);
+      const hash = resolveVisitor(request, response);
+      const nowText = new Date().toISOString();
+      ensurePage.run(pageKey, nowText);
+      addVisitorView.run(pageKey, hash, nowText, nowText);
+      incrementViews.run(nowText, pageKey);
+      return { ...statsFor(pageKey, hash), counted: true };
+    },
+    stampHeat: async (request, response, rawPageKey) => {
+      const pageKey = normalizePageKey(rawPageKey);
+      const hash = resolveVisitor(request, response);
+      const nowText = new Date().toISOString();
+      ensurePage.run(pageKey, nowText);
+      const result = addHeat.run(pageKey, hash, nowText);
+      const awarded = result.changes > 0;
+      if (awarded) incrementHeat.run(nowText, pageKey);
+      return { ...statsFor(pageKey, hash), awarded };
+    },
+    summary: async () =>
+      readSummary().map((row) => ({
+        pageKey: row.pageKey,
+        views: Number(row.views),
+        visitors: Number(row.visitors),
+        heat: Number(row.heat),
+      })),
   };
+};
 
-  const stampHeat = (request, response, rawPageKey) => {
-    const pageKey = normalizePageKey(rawPageKey);
-    const hash = getVisitor(request, response);
-    const nowText = new Date().toISOString();
-    ensurePage.run(pageKey, nowText);
-    const result = addHeat.run(pageKey, hash, nowText);
-    const awarded = result.changes > 0;
-    if (awarded) incrementHeat.run(nowText, pageKey);
-    return { ...statsFor(pageKey, hash), awarded };
+const mapEngagementRow = (row = {}) => ({
+  pageKey: row.page_key || row.pageKey || "",
+  views: Number(row.views || 0),
+  visitors: Number(row.visitors || 0),
+  heat: Number(row.heat || 0),
+  heated: Boolean(row.heated),
+});
+
+const createSupabaseAnalyticsService = () => {
+  const supabase = getSupabaseAdminClient();
+
+  const callRpc = async (fn, args) => {
+    const { data, error } = await supabase.rpc(fn, args);
+    if (error) throw error;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) {
+      return {
+        pageKey: args.target_page_key,
+        views: 0,
+        visitors: 0,
+        heat: 0,
+        heated: false,
+      };
+    }
+    return mapEngagementRow(row);
   };
-
-  const getStats = (request, response, rawPageKey) => {
-    const pageKey = normalizePageKey(rawPageKey);
-    const hash = getVisitor(request, response);
-    ensurePage.run(pageKey, new Date().toISOString());
-    return statsFor(pageKey, hash);
-  };
-
-  const summary = () =>
-    readSummary().map((row) => ({
-      pageKey: row.pageKey,
-      views: Number(row.views),
-      visitors: Number(row.visitors),
-      heat: Number(row.heat),
-    }));
 
   return {
-    getStats,
-    normalizePageKey,
-    recordView,
-    stampHeat,
-    summary,
+    backend: "supabase",
+    getStats: async (request, response, rawPageKey) => {
+      const pageKey = normalizePageKey(rawPageKey);
+      const hash = resolveVisitor(request, response);
+      return callRpc("zz_get_page_engagement", {
+        target_page_key: pageKey,
+        target_visitor_hash: hash,
+      });
+    },
+    recordView: async (request, response, rawPageKey) => {
+      const pageKey = normalizePageKey(rawPageKey);
+      const hash = resolveVisitor(request, response);
+      const stats = await callRpc("zz_record_page_view", {
+        target_page_key: pageKey,
+        target_visitor_hash: hash,
+      });
+      return { ...stats, counted: true };
+    },
+    stampHeat: async (request, response, rawPageKey) => {
+      const pageKey = normalizePageKey(rawPageKey);
+      const hash = resolveVisitor(request, response);
+      const { data, error } = await supabase.rpc("zz_stamp_page_heat", {
+        target_page_key: pageKey,
+        target_visitor_hash: hash,
+      });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      return {
+        ...mapEngagementRow(row),
+        awarded: Boolean(row?.awarded),
+      };
+    },
+    summary: async () => {
+      const { data: pages, error } = await supabase
+        .from("zz_page_stats")
+        .select("page_key, views, heat")
+        .order("views", { ascending: false });
+      if (error) throw error;
+      const { data: visitorRows, error: visitorError } = await supabase
+        .from("zz_page_visitors")
+        .select("page_key");
+      if (visitorError) throw visitorError;
+      const visitorCounts = new Map();
+      for (const row of visitorRows || []) {
+        visitorCounts.set(
+          row.page_key,
+          (visitorCounts.get(row.page_key) || 0) + 1,
+        );
+      }
+      return (pages || []).map((row) => ({
+        pageKey: row.page_key,
+        views: Number(row.views || 0),
+        visitors: visitorCounts.get(row.page_key) || 0,
+        heat: Number(row.heat || 0),
+      }));
+    },
   };
+};
+
+export const createAnalyticsService = async (options = {}) => {
+  if (shouldUseSupabase()) {
+    try {
+      return createSupabaseAnalyticsService();
+    } catch (error) {
+      if (error.message !== "SUPABASE_NOT_CONFIGURED") throw error;
+    }
+  }
+  return createSqliteAnalyticsService(options);
 };

@@ -327,6 +327,7 @@ const renderPageEngagement = (stats) => {
 const requestPageEngagement = async (path) => {
   const response = await fetch(path, {
     method: "POST",
+    credentials: "same-origin",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -342,6 +343,7 @@ const readPageEngagement = async () => {
   const response = await fetch(
     `/api/analytics/stats?page=${encodeURIComponent(trackedPageKey)}`,
     {
+      credentials: "same-origin",
       headers: { Accept: "application/json" },
       cache: "no-store",
     },

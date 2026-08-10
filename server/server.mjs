@@ -886,18 +886,16 @@ const createContentSubmission = async (request, response) => {
 };
 
 const sendJson = (response, statusCode, payload) => {
-  response.writeHead(statusCode, {
-    "Cache-Control": "no-store",
-    "Content-Type": "application/json; charset=utf-8",
-  });
+  response.statusCode = statusCode;
+  response.setHeader("Cache-Control", "no-store");
+  response.setHeader("Content-Type", "application/json; charset=utf-8");
   response.end(JSON.stringify(payload));
 };
 
 const sendText = (response, statusCode, text) => {
-  response.writeHead(statusCode, {
-    "Cache-Control": "no-store",
-    "Content-Type": "text/plain; charset=utf-8",
-  });
+  response.statusCode = statusCode;
+  response.setHeader("Cache-Control", "no-store");
+  response.setHeader("Content-Type", "text/plain; charset=utf-8");
   response.end(text);
 };
 
@@ -1261,7 +1259,7 @@ export const handleRequest = async (request, response) => {
       sendJson(response, 200, {
         ok: true,
         alipayConfigured: isAlipayConfigured,
-        analytics: { database: "sqlite" },
+        analytics: { database: analyticsService.backend || "sqlite" },
         account: await accountService.getBrowserAccount(request),
       });
       return;
@@ -1283,8 +1281,8 @@ export const handleRequest = async (request, response) => {
         body = await parseJsonBody(request);
         const stats =
           url.pathname === "/api/analytics/view"
-            ? analyticsService.recordView(request, response, body.pageKey)
-            : analyticsService.stampHeat(request, response, body.pageKey);
+            ? await analyticsService.recordView(request, response, body.pageKey)
+            : await analyticsService.stampHeat(request, response, body.pageKey);
         sendJson(response, 200, stats);
       } catch (error) {
         if (error.message !== "INVALID_PAGE_KEY") throw error;
@@ -1304,7 +1302,7 @@ export const handleRequest = async (request, response) => {
         sendJson(
           response,
           200,
-          analyticsService.getStats(
+          await analyticsService.getStats(
             request,
             response,
             url.searchParams.get("page"),
@@ -1324,7 +1322,7 @@ export const handleRequest = async (request, response) => {
       request.method === "GET" &&
       url.pathname === "/api/analytics/summary"
     ) {
-      sendJson(response, 200, { pages: analyticsService.summary() });
+      sendJson(response, 200, { pages: await analyticsService.summary() });
       return;
     }
 
