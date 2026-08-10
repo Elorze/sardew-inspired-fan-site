@@ -30,9 +30,10 @@ body[data-page="index.html"] .home-depth-story {
   --home-logo-opacity: 0;
   --home-logo-y: 0px;
   --home-logo-scale: 0.9;
+  --home-logo-scroll-y: 0px;
   position: relative;
   width: 100%;
-  min-height: 100svh;
+  min-height: 148svh;
   padding: 0;
   background: #eaf3ef;
 }
@@ -41,20 +42,20 @@ body[data-page="index.html"] .home-hero {
   position: relative;
   display: block;
   width: 100%;
-  height: 100svh;
-  min-height: 620px;
+  height: 148svh;
+  min-height: 920px;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .home-depth-sticky {
-  position: relative;
-  top: 0;
+  position: sticky;
+  top: 72px;
   display: block;
   width: 100%;
-  height: 100%;
-  min-height: 620px;
+  height: calc(100svh - 72px);
+  min-height: 548px;
   overflow: hidden;
   background: #eaf3ef;
   isolation: isolate;
@@ -263,11 +264,12 @@ body[data-page="index.html"] .home-hero {
 .home-depth-logo-wrap {
   position: absolute;
   z-index: 4;
-  top: clamp(70px, 10svh, 104px);
+  top: clamp(28px, 4.2svh, 52px);
   left: 50%;
   width: min(66vw, 820px);
   opacity: var(--home-logo-opacity);
-  transform: translateX(-50%);
+  transform: translate(-50%, var(--home-logo-scroll-y));
+  will-change: transform, opacity;
   transition: opacity 700ms ease;
 }
 
@@ -314,7 +316,7 @@ body[data-page="index.html"] .home-hero {
     calc(100% - (var(--home-page-gutter) * 2))
   );
   min-height: clamp(76px, 10svh, 92px);
-  margin: 0 auto;
+  margin: clamp(8px, 1.6svh, 18px) auto 0;
   padding: clamp(17px, 2.6svh, 23px) 16px;
   color: #507368;
   box-sizing: border-box;
@@ -546,17 +548,18 @@ body[data-page="index.html"] .home-hero {
   }
 
   body[data-page="index.html"] .home-depth-story {
-    min-height: 100svh;
+    min-height: 138svh;
   }
 
   body[data-page="index.html"] .home-hero {
-    height: 100svh;
-    min-height: 560px;
+    height: 138svh;
+    min-height: 760px;
   }
 
   .home-depth-sticky {
-    height: 100%;
-    min-height: 560px;
+    top: 64px;
+    height: calc(100svh - 64px);
+    min-height: 496px;
   }
 
   .home-depth-scene {
@@ -585,15 +588,15 @@ body[data-page="index.html"] .home-hero {
   }
 
   .home-sprite-clover {
-    bottom: 19%;
+    bottom: 17%;
     left: 2%;
-    width: clamp(106px, 34vw, 138px);
+    width: clamp(100px, 32vw, 130px);
   }
 
   .home-sprite-flying {
-    top: 43%;
-    right: 9%;
-    width: clamp(114px, 37vw, 154px);
+    top: 46%;
+    right: 8%;
+    width: clamp(108px, 34vw, 148px);
   }
 
   .home-sprite-bluebell {
@@ -609,8 +612,8 @@ body[data-page="index.html"] .home-hero {
   }
 
   .home-depth-logo-wrap {
-    top: clamp(72px, 10.5svh, 100px);
-    width: min(94vw, 560px);
+    top: clamp(28px, 4.5svh, 48px);
+    width: min(88vw, 520px);
   }
 
   .home-stump-spirit-wrap {
@@ -626,6 +629,7 @@ body[data-page="index.html"] .home-hero {
   .home-landing-intro {
     width: calc(100% - (var(--home-page-gutter) * 2));
     min-height: 68px;
+    margin-top: 6px;
     padding: 15px 10px;
   }
 
@@ -678,6 +682,7 @@ body[data-page="index.html"] .home-hero {
     --home-logo-opacity: 1;
     --home-logo-y: 0px;
     --home-logo-scale: 1;
+    --home-logo-scroll-y: 0px;
   }
 
   body[data-page="index.html"] {

@@ -1,7 +1,7 @@
 if (!document.querySelector('link[data-navigation-styles]')) {
   const navigationStyles = document.createElement("link");
   navigationStyles.rel = "stylesheet";
-  navigationStyles.href = "navigation.css?v=20260809-menu-single";
+  navigationStyles.href = "navigation.css?v=20260810-social-align";
   navigationStyles.dataset.navigationStyles = "";
   document.head.append(navigationStyles);
 }

@@ -12,6 +12,13 @@ if (homeStory && homeHero) {
   document.documentElement.classList.add("has-home-depth");
   homeStory.classList.add("is-timed-reveal");
 
+  const homeLogo = homeHero.querySelector(".home-depth-logo");
+  const homeGroundSprites = [
+    ...homeHero.querySelectorAll(
+      ".home-sprite-lotus, .home-sprite-cattail, .home-sprite-clover, .home-sprite-bluebell, .home-sprite-dandelion",
+    ),
+  ];
+
   const revealSteps = [
     { className: "is-scene-visible", delay: 0 },
     { className: "is-ready", delay: 420 },
@@ -21,6 +28,7 @@ if (homeStory && homeHero) {
   ];
 
   const revealTimers = [];
+  let homeScrollFrame = 0;
 
   const clearHomeRevealTimers = () => {
     while (revealTimers.length) {
@@ -55,12 +63,60 @@ if (homeStory && homeHero) {
     });
   };
 
+  const smoothstep = (value) => {
+    const t = Math.min(Math.max(value, 0), 1);
+    return t * t * (3 - 2 * t);
+  };
+
+  const updateHomeLogoScroll = () => {
+    homeScrollFrame = 0;
+
+    if (reduceHomeMotion.matches || !homeLogo || !homeGroundSprites.length) {
+      homeHero.style.setProperty("--home-logo-scroll-y", "0px");
+      return;
+    }
+
+    const scrollRange = Math.max(homeHero.offsetHeight - window.innerHeight, 1);
+    const progress = Math.min(
+      Math.max(-homeStory.getBoundingClientRect().top / scrollRange, 0),
+      1,
+    );
+    const isCompact = window.matchMedia("(max-width: 760px)").matches;
+    const clearance = isCompact ? 18 : 24;
+
+    homeHero.style.setProperty("--home-logo-scroll-y", "0px");
+
+    const logoBottom = homeLogo.getBoundingClientRect().bottom;
+    const spriteTop = Math.min(
+      ...homeGroundSprites.map((sprite) => sprite.getBoundingClientRect().top),
+    );
+    const maxTravel = Math.max(0, spriteTop - logoBottom - clearance);
+    const travel = smoothstep(progress) * maxTravel;
+
+    homeHero.style.setProperty("--home-logo-scroll-y", `${travel}px`);
+  };
+
+  const requestHomeLogoScrollUpdate = () => {
+    if (homeScrollFrame) return;
+    homeScrollFrame = window.requestAnimationFrame(updateHomeLogoScroll);
+  };
+
   playHomeTimedReveal();
+  updateHomeLogoScroll();
+
+  window.addEventListener("scroll", requestHomeLogoScrollUpdate, { passive: true });
+  window.addEventListener("resize", requestHomeLogoScrollUpdate);
 
   if (typeof reduceHomeMotion.addEventListener === "function") {
-    reduceHomeMotion.addEventListener("change", playHomeTimedReveal);
+    reduceHomeMotion.addEventListener("change", () => {
+      playHomeTimedReveal();
+      requestHomeLogoScrollUpdate();
+    });
   } else if (typeof reduceHomeMotion.addListener === "function") {
-    reduceHomeMotion.addListener(playHomeTimedReveal);
+    reduceHomeMotion.addListener(() => {
+      playHomeTimedReveal();
+      requestHomeLogoScrollUpdate();
+    });
   }
 }
 
