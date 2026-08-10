@@ -1,7 +1,7 @@
 if (!document.querySelector('link[data-navigation-styles]')) {
   const navigationStyles = document.createElement("link");
   navigationStyles.rel = "stylesheet";
-  navigationStyles.href = "navigation.css?v=20260810-social-align";
+  navigationStyles.href = "navigation.css?v=20260810-social-svg";
   navigationStyles.dataset.navigationStyles = "";
   document.head.append(navigationStyles);
 }
@@ -69,7 +69,22 @@ if (headerRoot) {
           aria-label="前往种种的小红书主页"
           title="小红书"
         >
-          <img class="xiaohongshu-icon" src="assets/xiaohongshu-app-icon.png" alt="" aria-hidden="true" />
+          <svg class="xiaohongshu-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M6.2 4.5h11.6c.9 0 1.6.7 1.6 1.6v12.8c0 .9-.7 1.6-1.6 1.6H6.2c-.9 0-1.6-.7-1.6-1.6V6.1c0-.9.7-1.6 1.6-1.6Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8.2 9.2h7.6M8.2 12.2h7.6M8.2 15.2h5.2"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
         </a>
         <a href="blog.html?compose=1" aria-label="写信" title="写信">
           <svg viewBox="0 0 24 24" aria-hidden="true">

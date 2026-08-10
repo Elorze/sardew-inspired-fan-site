@@ -13,6 +13,7 @@ if (homeStory && homeHero) {
   homeStory.classList.add("is-timed-reveal");
 
   const homeLogo = homeHero.querySelector(".home-depth-logo");
+  const homeSticky = homeHero.querySelector(".home-depth-sticky");
   const homeGroundSprites = [
     ...homeHero.querySelectorAll(
       ".home-sprite-lotus, .home-sprite-cattail, .home-sprite-clover, .home-sprite-bluebell, .home-sprite-dandelion",
@@ -68,6 +69,11 @@ if (homeStory && homeHero) {
     return t * t * (3 - 2 * t);
   };
 
+  const readLogoScrollY = () =>
+    Number.parseFloat(
+      getComputedStyle(homeHero).getPropertyValue("--home-logo-scroll-y"),
+    ) || 0;
+
   const updateHomeLogoScroll = () => {
     homeScrollFrame = 0;
 
@@ -76,21 +82,19 @@ if (homeStory && homeHero) {
       return;
     }
 
-    const scrollRange = Math.max(homeHero.offsetHeight - window.innerHeight, 1);
-    const progress = Math.min(
-      Math.max(-homeStory.getBoundingClientRect().top / scrollRange, 0),
-      1,
-    );
+    const stickyHeight = homeSticky?.offsetHeight || window.innerHeight;
+    const scrollRange = Math.max(homeHero.offsetHeight - stickyHeight, 1);
+    const heroTop = homeHero.getBoundingClientRect().top;
+    const progress = Math.min(Math.max(-heroTop / scrollRange, 0), 1);
     const isCompact = window.matchMedia("(max-width: 760px)").matches;
-    const clearance = isCompact ? 18 : 24;
-
-    homeHero.style.setProperty("--home-logo-scroll-y", "0px");
-
-    const logoBottom = homeLogo.getBoundingClientRect().bottom;
+    const clearance = isCompact ? 20 : 24;
+    const currentTravel = readLogoScrollY();
+    const logoBottomAtRest =
+      homeLogo.getBoundingClientRect().bottom - currentTravel;
     const spriteTop = Math.min(
       ...homeGroundSprites.map((sprite) => sprite.getBoundingClientRect().top),
     );
-    const maxTravel = Math.max(0, spriteTop - logoBottom - clearance);
+    const maxTravel = Math.max(0, spriteTop - logoBottomAtRest - clearance);
     const travel = smoothstep(progress) * maxTravel;
 
     homeHero.style.setProperty("--home-logo-scroll-y", `${travel}px`);
@@ -106,6 +110,8 @@ if (homeStory && homeHero) {
 
   window.addEventListener("scroll", requestHomeLogoScrollUpdate, { passive: true });
   window.addEventListener("resize", requestHomeLogoScrollUpdate);
+  window.visualViewport?.addEventListener("resize", requestHomeLogoScrollUpdate);
+  window.visualViewport?.addEventListener("scroll", requestHomeLogoScrollUpdate);
 
   if (typeof reduceHomeMotion.addEventListener === "function") {
     reduceHomeMotion.addEventListener("change", () => {

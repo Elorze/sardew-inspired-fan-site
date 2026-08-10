@@ -69,6 +69,10 @@ html {
   cursor: var(--cursor-default);
 }
 
+html.has-home-depth {
+  scroll-behavior: auto;
+}
+
 body {
   min-width: 320px;
   margin: 0;
@@ -233,7 +237,8 @@ a {
   fill: currentColor;
 }
 
-.social-links .wechat-icon {
+.social-links .wechat-icon,
+.social-links .xiaohongshu-icon {
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -248,22 +253,6 @@ a {
 
 .social-links .xiaohongshu-icon {
   display: block;
-  border-radius: 4px;
-  filter: saturate(0.42) hue-rotate(104deg) brightness(0.78);
-  object-fit: cover;
-  object-position: center;
-  opacity: 0.9;
-  transition:
-    filter 150ms ease,
-    opacity 150ms ease,
-    transform 150ms ease;
-}
-
-.social-links .social-platform-xiaohongshu:hover .xiaohongshu-icon,
-.social-links .social-platform-xiaohongshu:focus-visible .xiaohongshu-icon {
-  filter: saturate(0.38) hue-rotate(292deg) brightness(0.88);
-  opacity: 1;
-  transform: scale(1.04);
 }
 
 .social-contact-dialog {
@@ -3038,8 +3027,8 @@ body[data-page="shop.html"] .site-footer {
 
   .social-links a,
   .social-links .social-placeholder {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
   }
 
   .social-links svg,
@@ -3049,7 +3038,7 @@ body[data-page="shop.html"] .site-footer {
   }
 
   .social-links .xiaohongshu-icon {
-    border-radius: 3.5px;
+    border-radius: 0;
   }
 
   /* Legacy mobile flyout removed: navigation uses .site-menu-popover from site-shell.js */
@@ -3448,7 +3437,7 @@ body[data-page="shop.html"] .site-footer {
 
 @media (max-width: 460px) {
   .site-header {
-    gap: 8px;
+    gap: 6px;
   }
 
   .social-links {
@@ -3456,9 +3445,12 @@ body[data-page="shop.html"] .site-footer {
   }
 
   .social-links a,
-  .social-links .social-placeholder {
-    width: 32px;
-    height: 32px;
+  .social-links .social-placeholder,
+  .social-links button,
+  .menu-button,
+  .site-account-trigger {
+    width: 36px;
+    height: 36px;
   }
 
   .social-links svg,
@@ -3468,16 +3460,19 @@ body[data-page="shop.html"] .site-footer {
   }
 
   .menu-button {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
   }
 }
 
 @media (max-width: 360px) {
   .social-links a,
-  .social-links .social-placeholder {
-    width: 30px;
-    height: 30px;
+  .social-links .social-placeholder,
+  .social-links button,
+  .menu-button,
+  .site-account-trigger {
+    width: 34px;
+    height: 34px;
   }
 
   .social-links svg,
