@@ -10,31 +10,58 @@ const reduceHomeMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (homeStory && homeHero) {
   document.documentElement.classList.add("has-home-depth");
+  homeStory.classList.add("is-timed-reveal");
 
-  let homeRevealFrame = 0;
-  const updateHomeReveal = () => {
-    homeRevealFrame = 0;
-    const storyRect = homeStory.getBoundingClientRect();
-    const scrollableDistance = Math.max(homeStory.offsetHeight - window.innerHeight, 1);
-    const progress = Math.min(
-      Math.max(-storyRect.top / scrollableDistance, 0),
-      1,
-    );
-    homeHero.classList.toggle("is-ready", progress > 0.12);
-    homeHero.classList.toggle("is-scene-visible", true);
-    homeHero.classList.toggle("is-spirit-visible", progress > 0.42);
-    homeHero.classList.toggle("is-logo-visible", progress > 0.58);
-    homeHero.classList.toggle("is-copy-visible", progress > 0.76);
+  const revealSteps = [
+    { className: "is-scene-visible", delay: 0 },
+    { className: "is-ready", delay: 420 },
+    { className: "is-spirit-visible", delay: 1100 },
+    { className: "is-logo-visible", delay: 1680 },
+    { className: "is-copy-visible", delay: 2280 },
+  ];
+
+  const revealTimers = [];
+
+  const clearHomeRevealTimers = () => {
+    while (revealTimers.length) {
+      window.clearTimeout(revealTimers.pop());
+    }
   };
 
-  const requestHomeRevealUpdate = () => {
-    if (homeRevealFrame) return;
-    homeRevealFrame = window.requestAnimationFrame(updateHomeReveal);
+  const applyHomeRevealStep = (className) => {
+    homeHero.classList.add(className);
   };
 
-  updateHomeReveal();
-  window.addEventListener("scroll", requestHomeRevealUpdate, { passive: true });
-  window.addEventListener("resize", requestHomeRevealUpdate);
+  const revealHomeAllAtOnce = () => {
+    clearHomeRevealTimers();
+    revealSteps.forEach(({ className }) => applyHomeRevealStep(className));
+  };
+
+  const playHomeTimedReveal = () => {
+    clearHomeRevealTimers();
+    revealSteps.forEach(({ className }) => {
+      homeHero.classList.remove(className);
+    });
+
+    if (reduceHomeMotion.matches) {
+      revealHomeAllAtOnce();
+      return;
+    }
+
+    revealSteps.forEach(({ className, delay }) => {
+      revealTimers.push(
+        window.setTimeout(() => applyHomeRevealStep(className), delay),
+      );
+    });
+  };
+
+  playHomeTimedReveal();
+
+  if (typeof reduceHomeMotion.addEventListener === "function") {
+    reduceHomeMotion.addEventListener("change", playHomeTimedReveal);
+  } else if (typeof reduceHomeMotion.addListener === "function") {
+    reduceHomeMotion.addListener(playHomeTimedReveal);
+  }
 }
 
 if (homeMotionView && homeMotionTrack && homeSlides.length) {
